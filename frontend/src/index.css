@@ -156,6 +156,14 @@
     scrollbar-width: none;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .break-anywhere {
     overflow-wrap: anywhere;
     word-break: normal;

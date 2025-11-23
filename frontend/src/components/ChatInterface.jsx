@@ -32,14 +32,6 @@ export default function ChatInterface({
   const stage2Ref = useRef(null);
   const stage3Ref = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [conversation]);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
@@ -91,32 +83,6 @@ export default function ChatInterface({
   if (!conversation) {
     return (
       <div className="flex h-full flex-col">
-        <div className="hidden items-center justify-between border-b bg-card px-6 py-4 md:flex shadow-sm">
-          <h1 className="text-2xl font-bold">LLM Council</h1>
-          <a
-            href="https://github.com/wquguru/llm-council-zenmux"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground hover:scale-110"
-            title="View on GitHub"
-          >
-            <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-          </a>
-        </div>
-        <div className="flex items-center justify-center gap-2 border-b bg-primary/5 px-4 py-2.5 text-xs md:px-6 md:py-3 md:text-sm text-foreground/80 border-primary/10">
-          <span>💡</span>
-          <span className="line-clamp-1 md:line-clamp-none">
-            多模型协作问答：集体智慧，匿名评审，综合决策
-          </span>
-        </div>
-        <div className="flex items-center justify-center gap-2 border-b bg-warning/10 px-4 py-2.5 text-xs font-semibold text-warning md:px-6 md:py-3 md:text-sm border-warning/20">
-          <span>⚠️</span>
-          <span className="line-clamp-1 md:line-clamp-none">
-            隐私提示：所有对话对所有访问者可见，请勿输入敏感信息
-          </span>
-        </div>
         <div className="flex flex-1 flex-col items-center justify-center text-center text-muted-foreground p-6">
           <h2 className="mb-3 text-2xl font-bold text-foreground md:text-3xl">
             Welcome to LLM Council
@@ -151,42 +117,16 @@ export default function ChatInterface({
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="hidden items-center justify-between border-b bg-card px-6 py-4 md:flex shadow-sm">
-        <h1 className="text-2xl font-bold">LLM Council</h1>
-        <a
-          href="https://github.com/wquguru/llm-council-zenmux"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground hover:scale-110"
-          title="View on GitHub"
-        >
-          <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-          </svg>
-        </a>
-      </div>
-      <div className="flex items-center justify-center gap-2 border-b bg-primary/5 px-4 py-2.5 text-xs md:px-6 md:py-3 md:text-sm text-foreground/80 border-primary/10">
-        <span>💡</span>
-        <span className="line-clamp-1 md:line-clamp-none">
-          多模型协作问答：集体智慧，匿名评审，综合决策
-        </span>
-      </div>
-      <div className="flex items-center justify-center gap-2 border-b bg-warning/10 px-4 py-2.5 text-xs font-semibold text-warning md:px-6 md:py-3 md:text-sm border-warning/20">
-        <span>⚠️</span>
-        <span className="line-clamp-1 md:line-clamp-none">
-          隐私提示：所有对话对所有访问者可见，请勿输入敏感信息
-        </span>
-      </div>
+    <div className="flex h-full flex-col">{/* Content removed - headers and banners now in App.jsx */}
 
       <ScrollArea className="flex-1">
         <div className="p-3 md:p-6">
           {conversation.messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground md:py-20">
-              <h2 className="mb-3 text-2xl font-bold text-foreground md:text-3xl">
+              <h2 className="mb-3 text-2xl font-bold text-foreground md:text-3xl md:hidden">
                 Start a conversation
               </h2>
-              <p className="text-base md:text-lg max-w-md">
+              <p className="text-base md:text-lg max-w-md md:hidden">
                 Ask a question to consult the LLM Council
               </p>
             </div>
