@@ -14,7 +14,7 @@ LLM Council is a 3-stage deliberation system where multiple LLMs collaboratively
 - Contains `COUNCIL_MODELS` (list of OpenRouter model identifiers)
 - Contains `CHAIRMAN_MODEL` (model that synthesizes final answer)
 - Uses environment variable `OPENROUTER_API_KEY` from `.env`
-- Backend runs on **port 8001** (NOT 8000 - user had another app on 8000)
+- Backend runs on **port 8008** in Docker deployment
 
 **`openrouter.py`**
 - `query_model()`: Single async model query
@@ -41,9 +41,12 @@ LLM Council is a 3-stage deliberation system where multiple LLMs collaboratively
 - Note: metadata (label_to_model, aggregate_rankings) is NOT persisted to storage, only returned via API
 
 **`main.py`**
-- FastAPI app with CORS enabled for localhost:5173 and localhost:3000
+- FastAPI app with CORS enabled for:
+  - Development: localhost:5173 (Vite), localhost:3000
+  - Production: localhost:80, localhost (Docker/Nginx)
 - POST `/api/conversations/{id}/message` returns metadata in addition to stages
 - Metadata includes: label_to_model mapping and aggregate_rankings
+- `/health` endpoint for Docker health checks
 
 ### Frontend Structure (`frontend/src/`)
 
@@ -115,9 +118,20 @@ This strict format allows reliable parsing while still getting thoughtful evalua
 All backend modules use relative imports (e.g., `from .config import ...`) not absolute imports. This is critical for Python's module system to work correctly when running as `python -m backend.main`.
 
 ### Port Configuration
-- Backend: 8001 (changed from 8000 to avoid conflict)
-- Frontend: 5173 (Vite default)
-- Update both `backend/main.py` and `frontend/src/api.js` if changing
+
+**Development Mode:**
+- Backend: 8008 (direct access)
+- Frontend: 5173 (Vite dev server)
+- Frontend calls backend directly at `http://localhost:8008`
+
+**Docker/Production Mode:**
+- Backend: 8008 (internal container port)
+- Nginx: 80 (external access port)
+- Frontend built as static files served by Nginx
+- Frontend uses relative URLs (e.g., `/api/...`) which are proxied to backend by Nginx
+- No CORS issues because all traffic goes through single origin (port 80)
+
+The `frontend/src/api.js` automatically detects environment using `import.meta.env.PROD` and switches between development and production API base URLs.
 
 ### Markdown Rendering
 All ReactMarkdown components must be wrapped in `<div className="markdown-content">` for proper spacing. This class is defined globally in `index.css`.
@@ -125,12 +139,47 @@ All ReactMarkdown components must be wrapped in `<div className="markdown-conten
 ### Model Configuration
 Models are hardcoded in `backend/config.py`. Chairman can be same or different from council members. The current default is Gemini as chairman per user preference.
 
+## Docker Deployment
+
+The application can be deployed using Docker Compose:
+
+```bash
+# Build and start containers
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Rebuild after code changes
+docker-compose up -d --build
+
+# Stop containers
+docker-compose down
+```
+
+**Architecture:**
+- `backend` container: Python FastAPI app on port 8008
+- `nginx` container: Nginx reverse proxy on port 80
+  - Serves frontend static files from `/usr/share/nginx/html`
+  - Proxies `/api/*` requests to backend container
+  - Handles CORS by making everything same-origin
+- Shared volume: `./data` for conversation persistence
+
+**Important:** Before deploying, ensure:
+1. Frontend is built: `cd frontend && npm run build`
+2. `.env` file exists with `ZENMUX_API_KEY`
+3. Port 80 is available on host machine
+
 ## Common Gotchas
 
 1. **Module Import Errors**: Always run backend as `python -m backend.main` from project root, not from backend directory
-2. **CORS Issues**: Frontend must match allowed origins in `main.py` CORS middleware
+2. **CORS Issues in Docker**:
+   - Frontend must use relative URLs in production (handled automatically by `import.meta.env.PROD`)
+   - Backend CORS must allow `http://localhost` and `http://localhost:80`
+   - Never expose backend port 8008 externally in production
 3. **Ranking Parse Failures**: If models don't follow format, fallback regex extracts any "Response X" patterns in order
 4. **Missing Metadata**: Metadata is ephemeral (not persisted), only available in API responses
+5. **Docker Build Issues**: Remember to rebuild frontend before `docker-compose up --build`
 
 ## Future Enhancement Ideas
 
