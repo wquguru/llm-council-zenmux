@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import Stage1 from "./Stage1";
 import Stage2 from "./Stage2";
@@ -30,12 +30,39 @@ export default function ChatInterface({
   const stage1Ref = useRef(null);
   const stage2Ref = useRef(null);
   const stage3Ref = useRef(null);
+  const textareaRef = useRef(null);
+  const formRef = useRef(null);
+
+  // Handle mobile keyboard appearing - scroll input into view
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const handleFocus = () => {
+      // Delay to wait for keyboard animation
+      setTimeout(() => {
+        // Scroll the form into view
+        formRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+          inline: "nearest"
+        });
+      }, 300);
+    };
+
+    textarea.addEventListener("focus", handleFocus);
+    return () => textarea.removeEventListener("focus", handleFocus);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
       onSendMessage(input);
       setInput("");
+      // Blur textarea on mobile to hide keyboard after sending
+      if (window.innerWidth < 768) {
+        textareaRef.current?.blur();
+      }
     }
   };
 
@@ -51,9 +78,9 @@ export default function ChatInterface({
     setActiveModel(modelId);
     // Scroll to corresponding stage based on model
     if (COUNCIL_MODELS.includes(modelId)) {
-      stage1Ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      stage1Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     } else if (modelId === CHAIRMAN_MODEL) {
-      stage3Ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      stage3Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -118,7 +145,7 @@ export default function ChatInterface({
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="flex-1">
-        <div className="p-3 md:p-6">
+        <div className="p-3 pb-16 md:p-6 md:pb-20">
           {conversation.messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground md:py-20">
               <h2 className="mb-3 text-2xl font-bold text-foreground md:text-3xl md:hidden">
@@ -224,10 +251,12 @@ export default function ChatInterface({
 
       {conversation.messages.length === 0 && (
         <form
+          ref={formRef}
           className="flex items-end gap-3 border-t bg-card p-4 md:gap-4 md:p-6 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
           onSubmit={handleSubmit}
         >
           <Textarea
+            ref={textareaRef}
             className="min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm"
             placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
             value={input}
