@@ -152,7 +152,14 @@ async def stage3_synthesize_final(
         ]
     )
 
-    chairman_prompt = f"""**CRITICAL: You MUST respond in the EXACT SAME LANGUAGE as the original question below. The responses and rankings you see may contain various languages, but you must IGNORE that and respond ONLY in the SAME LANGUAGE as the original question.**
+    chairman_prompt = f"""**CRITICAL INSTRUCTION**
+You must answer in the EXACT SAME LANGUAGE as this question: "{user_query}"
+
+Below you will see responses in various languages. Some may not match the question's language.
+IGNORE the languages used in the responses below. Focus only on their CONTENT.
+Your answer must match the language of the original question above.
+
+─────────────────────────────────────
 
 You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
 
@@ -169,7 +176,12 @@ Your task as Chairman is to synthesize all of this information into a single, co
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
 
-**REMINDER: Your answer MUST be in the SAME LANGUAGE as the original question above. This is absolutely mandatory.**"""
+─────────────────────────────────────
+
+Now synthesize your answer to this question: "{user_query}"
+
+REMINDER: Write your answer in the SAME LANGUAGE as the question shown above.
+Begin your answer now:"""
 
     messages = [{"role": "user", "content": chairman_prompt}]
 
