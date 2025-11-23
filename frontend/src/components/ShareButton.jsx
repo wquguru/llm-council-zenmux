@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Share2, Link, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ const XIcon = ({ className }) => (
 );
 
 export default function ShareButton({ conversationId, conversationTitle }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   if (!conversationId) return null;
@@ -54,7 +56,7 @@ export default function ShareButton({ conversationId, conversationTitle }) {
           className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
         >
           <Share2 className="h-4 w-4" />
-          <span className="hidden sm:inline">Share</span>
+          <span className="hidden sm:inline">{t('share')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
@@ -64,11 +66,11 @@ export default function ShareButton({ conversationId, conversationTitle }) {
           ) : (
             <Link className="mr-2 h-4 w-4" />
           )}
-          {copied ? "Copied!" : "Copy link"}
+          {copied ? t('copied') : t('copyLink')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleShareToX} className="cursor-pointer">
           <XIcon className="mr-2 h-4 w-4" />
-          Share to X
+          {t('shareToX')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

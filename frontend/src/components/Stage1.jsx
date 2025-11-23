@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -9,6 +10,8 @@ import {
 } from "@/components/ui/card";
 
 export default function Stage1({ responses, activeModel, onSelectModel }) {
+  const { t } = useTranslation();
+
   if (!responses || responses.length === 0) {
     return null;
   }
@@ -30,7 +33,7 @@ export default function Stage1({ responses, activeModel, onSelectModel }) {
     <Card className="mb-4 shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-bold">
-          Stage 1: Individual Responses
+          {t('stage1Title')}
         </CardTitle>
       </CardHeader>
       <CardContent>

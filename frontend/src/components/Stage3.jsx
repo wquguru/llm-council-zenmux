@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -8,6 +9,8 @@ import {
 } from "@/components/ui/card";
 
 export default function Stage3({ finalResponse }) {
+  const { t } = useTranslation();
+
   if (!finalResponse) {
     return null;
   }
@@ -29,10 +32,10 @@ export default function Stage3({ finalResponse }) {
           >
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
-          Stage 3: Final Council Answer
+          {t('stage3Title')}
         </CardTitle>
         <CardDescription className="text-sm font-semibold text-primary/80 mono">
-          Chairman: {finalResponse.model.split("/")[1] || finalResponse.model}
+          {t('chairman')}: {finalResponse.model.split("/")[1] || finalResponse.model}
         </CardDescription>
       </CardHeader>
       <CardContent>
