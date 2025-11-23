@@ -30,13 +30,13 @@ export default function Sidebar({
               <div
                 key={conv.id}
                 className={cn(
-                  "mb-2 cursor-pointer rounded-lg p-3 transition-all hover:bg-muted/50 hover:shadow-sm min-w-0",
+                  "mb-2 cursor-pointer rounded-lg p-3 transition-all hover:bg-muted/50 hover:shadow-sm overflow-hidden",
                   conv.id === currentConversationId &&
                     "bg-primary/10 border border-primary shadow-sm",
                 )}
                 onClick={() => onSelectConversation(conv.id)}
               >
-                <div className="mb-1 text-sm font-semibold truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                <div className="mb-1 text-sm font-semibold truncate">
                   {conv.title || "New Conversation"}
                 </div>
                 <div className="text-xs text-muted-foreground mono">
