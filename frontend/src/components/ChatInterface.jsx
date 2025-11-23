@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import Stage1 from "./Stage1";
 import Stage2 from "./Stage2";
 import Stage3 from "./Stage3";
 import CouncilAvatars from "./CouncilAvatars";
-import PartnerFooter from "./PartnerFooter";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -52,9 +51,9 @@ export default function ChatInterface({
     setActiveModel(modelId);
     // Scroll to corresponding stage based on model
     if (COUNCIL_MODELS.includes(modelId)) {
-      stage1Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      stage1Ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } else if (modelId === CHAIRMAN_MODEL) {
-      stage3Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      stage3Ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   };
 
@@ -117,8 +116,7 @@ export default function ChatInterface({
   }
 
   return (
-    <div className="flex h-full flex-col">{/* Content removed - headers and banners now in App.jsx */}
-
+    <div className="flex h-full flex-col">
       <ScrollArea className="flex-1">
         <div className="p-3 md:p-6">
           {conversation.messages.length === 0 ? (
@@ -247,7 +245,6 @@ export default function ChatInterface({
           </Button>
         </form>
       )}
-      <PartnerFooter />
     </div>
   );
 }

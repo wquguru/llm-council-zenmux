@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import ChatInterface from "./components/ChatInterface";
+import PartnerFooter from "./components/PartnerFooter";
 import { api } from "./api";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -219,7 +220,7 @@ function App() {
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden pb-14">
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-3 border-b bg-card p-4 md:hidden shadow-sm">
           <Button
@@ -269,6 +270,9 @@ function App() {
           onNewConversation={handleNewConversation}
         />
       </div>
+
+      {/* Fixed Footer */}
+      <PartnerFooter />
     </div>
   );
 }
