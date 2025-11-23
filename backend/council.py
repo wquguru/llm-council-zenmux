@@ -15,7 +15,14 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
     Returns:
         List of dicts with 'model' and 'response' keys
     """
-    messages = [{"role": "user", "content": user_query}]
+    # Add strong language instruction that lets model decide based on question language
+    prompt = f"""**CRITICAL: You MUST respond in the EXACT SAME LANGUAGE as the question below. Do not translate or switch languages.**
+
+{user_query}
+
+**REMINDER: Your response must be in the same language as the question above.**"""
+
+    messages = [{"role": "user", "content": prompt}]
 
     # Query all models in parallel
     responses = await query_models_parallel(COUNCIL_MODELS, messages)
@@ -61,7 +68,7 @@ async def stage2_collect_rankings(
         ]
     )
 
-    ranking_prompt = f"""**CRITICAL INSTRUCTION: You MUST respond in the EXACT SAME LANGUAGE as the question below. If the question is in Chinese, respond ONLY in Chinese. If in English, respond ONLY in English. DO NOT use any other language.**
+    ranking_prompt = f"""**CRITICAL: You MUST respond in the EXACT SAME LANGUAGE as the question below. The responses you are evaluating may be in various languages, but you must IGNORE that and respond in the SAME LANGUAGE as the original question only.**
 
 You are evaluating different responses to the following question.
 
@@ -92,7 +99,7 @@ FINAL RANKING:
 2. Response A
 3. Response B
 
-REMEMBER: Provide your evaluation in the SAME LANGUAGE as the question above. This is mandatory.
+**REMINDER: Respond in the SAME LANGUAGE as the question above. This is mandatory.**
 
 Now provide your evaluation and ranking:"""
 
@@ -145,7 +152,7 @@ async def stage3_synthesize_final(
         ]
     )
 
-    chairman_prompt = f"""**CRITICAL INSTRUCTION: You MUST respond in the EXACT SAME LANGUAGE as the question below. If the question is in Chinese, respond ONLY in Chinese. If in English, respond ONLY in English. DO NOT use any other language.**
+    chairman_prompt = f"""**CRITICAL: You MUST respond in the EXACT SAME LANGUAGE as the original question below. The responses and rankings you see may contain various languages, but you must IGNORE that and respond ONLY in the SAME LANGUAGE as the original question.**
 
 You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
 
@@ -162,7 +169,7 @@ Your task as Chairman is to synthesize all of this information into a single, co
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
 
-REMEMBER: Provide your answer in the SAME LANGUAGE as the original question above. This is mandatory."""
+**REMINDER: Your answer MUST be in the SAME LANGUAGE as the original question above. This is absolutely mandatory.**"""
 
     messages = [{"role": "user", "content": chairman_prompt}]
 
