@@ -19,8 +19,8 @@ export default function Sidebar({
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="p-3">
+      <ScrollArea className="flex-1 min-h-0" scrollHideDelay={0}>
+        <div className="p-3 pr-4">
           {conversations.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
               No conversations yet

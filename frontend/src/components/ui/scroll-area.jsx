@@ -31,6 +31,8 @@ const ScrollBar = React.forwardRef(
           "h-full w-2.5 border-l border-l-transparent p-[1px]",
         orientation === "horizontal" &&
           "h-2.5 flex-col border-t border-t-transparent p-[1px]",
+        // Hide scrollbar by default, show on hover
+        "opacity-0 hover:opacity-100 data-[state=visible]:opacity-100",
         className,
       )}
       {...props}
