@@ -121,14 +121,23 @@ export default function ChatInterface({
   };
 
   const scrollToStage2 = () => {
-    if (stage2Ref.current) {
-      // Use 'start' to ensure the top of the card is visible
-      // Add a small delay to ensure DOM is ready
+    // 只滚动内部的 ScrollArea,不影响外层容器
+    if (stage2Ref.current && scrollAreaRef.current) {
       setTimeout(() => {
-        stage2Ref.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+        // 获取 Radix ScrollArea 的实际滚动视口 (Viewport)
+        const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (viewport) {
+          // 计算 stage2 相对于 viewport 的位置
+          const stage2Rect = stage2Ref.current.getBoundingClientRect();
+          const viewportRect = viewport.getBoundingClientRect();
+          const scrollOffset = stage2Rect.top - viewportRect.top + viewport.scrollTop;
+
+          // 平滑滚动到目标位置
+          viewport.scrollTo({
+            top: scrollOffset - 20, // 减去 20px 留一点顶部间距
+            behavior: 'smooth'
+          });
+        }
       }, 50);
     }
   };
@@ -215,7 +224,7 @@ export default function ChatInterface({
                     <Textarea
                       ref={textareaRef}
                       className={cn(
-                        "min-h-[80px] max-h-[200px] resize-y text-sm md:text-base shadow-md border-2 focus:border-primary pr-16",
+                        "min-h-[120px] max-h-[300px] resize-y text-sm md:text-base shadow-md border-2 focus:border-primary pr-16",
                         isOverLimit && "border-red-500 focus:border-red-500"
                       )}
                       placeholder={t('placeholder')}
@@ -223,7 +232,7 @@ export default function ChatInterface({
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       disabled={isLoading}
-                      rows={3}
+                      rows={5}
                     />
                     {/* Character counter */}
                     <div className={cn(
@@ -259,7 +268,13 @@ export default function ChatInterface({
         // Messages view: scrollable content with fixed input at bottom
         <>
           <ScrollArea ref={scrollAreaRef} className="flex-1">
-            <div className="p-3 pb-36 md:p-6 md:pb-44">
+            <div className={cn(
+              "p-3 md:p-6",
+              // Add bottom padding only if input form is visible (no stage3 completed yet)
+              !conversation.messages.some(msg => msg.role === 'assistant' && msg.stage3)
+                ? "pb-36 md:pb-44"
+                : "pb-6 md:pb-8"
+            )}>
               {conversation.messages.map((msg, index) => (
               <div key={index} className="mb-6 md:mb-8">
                 {msg.role === "user" ? (
@@ -370,41 +385,44 @@ export default function ChatInterface({
           </div>
         </ScrollArea>
 
-        <form
-          ref={formRef}
-          className="flex items-end gap-3 border-t bg-card p-4 md:gap-4 md:p-6 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
-          onSubmit={handleSubmit}
-        >
-          <div className="relative flex-1">
-            <Textarea
-              ref={textareaRef}
-              className={cn(
-                "min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm pr-16",
-                isOverLimit && "border-red-500 focus:border-red-500"
-              )}
-              placeholder={t('placeholder')}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isLoading}
-              rows={3}
-            />
-            {/* Character counter */}
-            <div className={cn(
-              "absolute bottom-2 right-2 text-xs",
-              getCounterColor()
-            )}>
-              {charCount}/{MAX_MESSAGE_LENGTH}
-            </div>
-          </div>
-          <Button
-            type="submit"
-            disabled={!input.trim() || isLoading || isOverLimit}
-            className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-sm hover:shadow-md transition-all"
+        {/* Only show input form if conversation is not complete (no stage3 response yet) */}
+        {!conversation.messages.some(msg => msg.role === 'assistant' && msg.stage3) && (
+          <form
+            ref={formRef}
+            className="flex items-end gap-3 border-t bg-card p-4 md:gap-4 md:p-6 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
+            onSubmit={handleSubmit}
           >
-            {t('send')}
-          </Button>
-        </form>
+            <div className="relative flex-1">
+              <Textarea
+                ref={textareaRef}
+                className={cn(
+                  "min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm pr-16",
+                  isOverLimit && "border-red-500 focus:border-red-500"
+                )}
+                placeholder={t('placeholder')}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isLoading}
+                rows={3}
+              />
+              {/* Character counter */}
+              <div className={cn(
+                "absolute bottom-2 right-2 text-xs",
+                getCounterColor()
+              )}>
+                {charCount}/{MAX_MESSAGE_LENGTH}
+              </div>
+            </div>
+            <Button
+              type="submit"
+              disabled={!input.trim() || isLoading || isOverLimit}
+              className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-sm hover:shadow-md transition-all"
+            >
+              {t('send')}
+            </Button>
+          </form>
+        )}
       </>
       )}
     </div>
