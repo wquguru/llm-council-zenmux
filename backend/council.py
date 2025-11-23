@@ -68,7 +68,14 @@ async def stage2_collect_rankings(
         ]
     )
 
-    ranking_prompt = f"""**CRITICAL: You MUST respond in the EXACT SAME LANGUAGE as the question below. The responses you are evaluating may be in various languages, but you must IGNORE that and respond in the SAME LANGUAGE as the original question only.**
+    ranking_prompt = f"""**CRITICAL INSTRUCTION**
+You must respond in the EXACT SAME LANGUAGE as this question: "{user_query}"
+
+Below you will see responses from different models. These responses may be in various languages.
+IGNORE the languages of the responses. Evaluate their CONTENT only.
+Your evaluation and ranking must be in the SAME LANGUAGE as the original question above.
+
+─────────────────────────────────────
 
 You are evaluating different responses to the following question.
 
@@ -99,9 +106,12 @@ FINAL RANKING:
 2. Response A
 3. Response B
 
-**REMINDER: Respond in the SAME LANGUAGE as the question above. This is mandatory.**
+─────────────────────────────────────
 
-Now provide your evaluation and ranking:"""
+Now evaluate and rank the responses to this question: "{user_query}"
+
+REMINDER: Write your evaluation in the SAME LANGUAGE as the question shown above.
+Begin your evaluation now:"""
 
     messages = [{"role": "user", "content": ranking_prompt}]
 
