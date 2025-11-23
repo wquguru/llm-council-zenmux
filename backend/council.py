@@ -61,7 +61,9 @@ async def stage2_collect_rankings(
         ]
     )
 
-    ranking_prompt = f"""You are evaluating different responses to the following question. Please respond in the SAME LANGUAGE as the question.
+    ranking_prompt = f"""**IMPORTANT: You MUST respond in the SAME LANGUAGE as the question below. If the question is in Chinese, respond in Chinese. If in English, respond in English.**
+
+You are evaluating different responses to the following question.
 
 Question: {user_query}
 
@@ -90,7 +92,7 @@ FINAL RANKING:
 2. Response A
 3. Response B
 
-Now provide your evaluation and ranking (remember to use the SAME LANGUAGE as the question):"""
+Now provide your evaluation and ranking (REMEMBER: use the SAME LANGUAGE as the question above):"""
 
     messages = [{"role": "user", "content": ranking_prompt}]
 

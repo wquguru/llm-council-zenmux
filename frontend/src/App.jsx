@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useParams, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import ChatInterface from "./components/ChatInterface";
 import PartnerFooter from "./components/PartnerFooter";
@@ -7,24 +8,28 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
-function App() {
+function AppContent() {
   const [conversations, setConversations] = useState([]);
-  const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const { conversationId } = useParams();
 
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
   }, []);
 
-  // Load conversation details when selected
+  // Load conversation details when URL changes
   useEffect(() => {
-    if (currentConversationId) {
-      loadConversation(currentConversationId);
+    if (conversationId) {
+      loadConversation(conversationId);
+    } else {
+      setCurrentConversation(null);
     }
-  }, [currentConversationId]);
+  }, [conversationId]);
 
   const loadConversations = async () => {
     try {
@@ -51,18 +56,20 @@ function App() {
         { id: newConv.id, created_at: newConv.created_at, message_count: 0 },
         ...conversations,
       ]);
-      setCurrentConversationId(newConv.id);
+      // Navigate to new conversation URL
+      navigate(`/c/${newConv.id}`);
     } catch (error) {
       console.error("Failed to create conversation:", error);
     }
   };
 
   const handleSelectConversation = (id) => {
-    setCurrentConversationId(id);
+    // Navigate to conversation URL
+    navigate(`/c/${id}`);
   };
 
   const handleSendMessage = async (content) => {
-    if (!currentConversationId) return;
+    if (!conversationId) return;
 
     setIsLoading(true);
     try {
@@ -95,7 +102,7 @@ function App() {
 
       // Send message with streaming
       await api.sendMessageStream(
-        currentConversationId,
+        conversationId,
         content,
         (eventType, event) => {
           switch (eventType) {
@@ -195,7 +202,7 @@ function App() {
       <div className="hidden md:block md:w-80 md:flex-shrink-0">
         <Sidebar
           conversations={conversations}
-          currentConversationId={currentConversationId}
+          currentConversationId={conversationId}
           onSelectConversation={handleSelectConversation}
           onNewConversation={handleNewConversation}
         />
@@ -206,7 +213,7 @@ function App() {
         <SheetContent side="left" className="w-[320px] p-0">
           <Sidebar
             conversations={conversations}
-            currentConversationId={currentConversationId}
+            currentConversationId={conversationId}
             onSelectConversation={(id) => {
               handleSelectConversation(id);
               setIsMobileMenuOpen(false);
@@ -281,12 +288,22 @@ function App() {
           onSendMessage={handleSendMessage}
           isLoading={isLoading}
           onNewConversation={handleNewConversation}
+          conversationId={conversationId}
         />
       </div>
 
       {/* Fixed Footer */}
       <PartnerFooter />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<AppContent />} />
+      <Route path="/c/:conversationId" element={<AppContent />} />
+    </Routes>
   );
 }
 

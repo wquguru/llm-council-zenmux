@@ -93,25 +93,62 @@ export const api = {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = ""; // Buffer for incomplete lines
+    let hasReceivedComplete = false;
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
 
-      const chunk = decoder.decode(value);
-      const lines = chunk.split("\n");
+        if (done) {
+          // Stream ended - ensure we fire complete if not already done
+          if (!hasReceivedComplete) {
+            onEvent("complete", {});
+          }
+          break;
+        }
 
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          const data = line.slice(6);
-          try {
-            const event = JSON.parse(data);
-            onEvent(event.type, event);
-          } catch (e) {
-            console.error("Failed to parse SSE event:", e);
+        // Append new data to buffer
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete lines
+        const lines = buffer.split("\n");
+        // Keep the last incomplete line in buffer
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            try {
+              const event = JSON.parse(data);
+              if (event.type === "complete") {
+                hasReceivedComplete = true;
+              }
+              onEvent(event.type, event);
+            } catch (e) {
+              console.error("Failed to parse SSE event:", e);
+            }
           }
         }
       }
+
+      // Process any remaining data in buffer
+      if (buffer.startsWith("data: ")) {
+        const data = buffer.slice(6);
+        try {
+          const event = JSON.parse(data);
+          if (event.type === "complete") {
+            hasReceivedComplete = true;
+          }
+          onEvent(event.type, event);
+        } catch (e) {
+          // Ignore parse errors for incomplete final chunk
+        }
+      }
+    } catch (error) {
+      console.error("SSE stream error:", error);
+      // Ensure loading state is cleared on error
+      onEvent("error", { message: error.message });
     }
   },
 };

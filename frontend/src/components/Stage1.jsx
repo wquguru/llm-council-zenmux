@@ -8,10 +8,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function Stage1({ responses }) {
+export default function Stage1({ responses, activeModel, onSelectModel }) {
   if (!responses || responses.length === 0) {
     return null;
   }
+
+  // Find the index of the active model
+  const activeIndex = activeModel
+    ? responses.findIndex((r) => r.model === activeModel)
+    : 0;
+  const currentValue = String(activeIndex >= 0 ? activeIndex : 0);
+
+  const handleTabChange = (value) => {
+    const index = parseInt(value, 10);
+    if (responses[index] && onSelectModel) {
+      onSelectModel(responses[index].model);
+    }
+  };
 
   return (
     <Card className="mb-4 shadow-sm hover:shadow-md transition-shadow">
@@ -21,7 +34,7 @@ export default function Stage1({ responses }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="0" className="w-full">
+        <Tabs value={currentValue} onValueChange={handleTabChange} className="w-full">
           <TabsList className="mb-4 w-full flex-wrap justify-start h-auto gap-2 bg-muted/50 p-1">
             {responses.map((resp, index) => (
               <TabsTrigger

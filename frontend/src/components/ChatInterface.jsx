@@ -4,6 +4,7 @@ import Stage1 from "./Stage1";
 import Stage2 from "./Stage2";
 import Stage3 from "./Stage3";
 import CouncilAvatars from "./CouncilAvatars";
+import ShareButton from "./ShareButton";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,6 +24,7 @@ export default function ChatInterface({
   onSendMessage,
   isLoading,
   onNewConversation,
+  conversationId,
 }) {
   const [input, setInput] = useState("");
   const [activeModel, setActiveModel] = useState(null);
@@ -76,12 +78,8 @@ export default function ChatInterface({
 
   const handleSelectModel = (modelId) => {
     setActiveModel(modelId);
-    // Scroll to corresponding stage based on model
-    if (COUNCIL_MODELS.includes(modelId)) {
-      stage1Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (modelId === CHAIRMAN_MODEL) {
-      stage3Ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    // 不使用 scrollIntoView，它会滚动外层容器导致 header 消失
+    // Tab 切换已经足够，用户可以自行滚动查看内容
   };
 
   const getModelStatuses = (msg) => {
@@ -171,8 +169,16 @@ export default function ChatInterface({
                   </div>
                 ) : (
                   <div className="mb-4">
-                    <div className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
-                      LLM Council
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
+                        LLM Council
+                      </span>
+                      {msg.stage3 && (
+                        <ShareButton
+                          conversationId={conversationId}
+                          conversationTitle={conversation?.title}
+                        />
+                      )}
                     </div>
 
                     {/* Council Avatars */}
@@ -196,7 +202,13 @@ export default function ChatInterface({
                           </span>
                         </Card>
                       )}
-                      {msg.stage1 && <Stage1 responses={msg.stage1} />}
+                      {msg.stage1 && (
+                        <Stage1
+                          responses={msg.stage1}
+                          activeModel={activeModel}
+                          onSelectModel={handleSelectModel}
+                        />
+                      )}
                     </div>
 
                     {/* Stage 2 */}
@@ -214,6 +226,8 @@ export default function ChatInterface({
                           rankings={msg.stage2}
                           labelToModel={msg.metadata?.label_to_model}
                           aggregateRankings={msg.metadata?.aggregate_rankings}
+                          activeModel={activeModel}
+                          onSelectModel={handleSelectModel}
                         />
                       )}
                     </div>
