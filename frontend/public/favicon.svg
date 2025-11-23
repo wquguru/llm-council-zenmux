@@ -1,0 +1,21 @@
+<svg width="32" height="32" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Council members (nodes around the circle) -->
+  <circle cx="100" cy="20" r="12" fill="#4a90e2"/>
+  <circle cx="155" cy="45" r="12" fill="#4a90e2"/>
+  <circle cx="155" cy="155" r="12" fill="#4a90e2"/>
+  <circle cx="100" cy="180" r="12" fill="#4a90e2"/>
+  <circle cx="45" cy="155" r="12" fill="#4a90e2"/>
+  <circle cx="45" cy="45" r="12" fill="#4a90e2"/>
+
+  <!-- Connection lines -->
+  <line x1="100" y1="32" x2="100" y2="65" stroke="#4a90e2" stroke-width="3"/>
+  <line x1="147" y1="54" x2="120" y2="80" stroke="#4a90e2" stroke-width="3"/>
+  <line x1="147" y1="146" x2="120" y2="120" stroke="#4a90e2" stroke-width="3"/>
+  <line x1="100" y1="168" x2="100" y2="135" stroke="#4a90e2" stroke-width="3"/>
+  <line x1="53" y1="146" x2="80" y2="120" stroke="#4a90e2" stroke-width="3"/>
+  <line x1="53" y1="54" x2="80" y2="80" stroke="#4a90e2" stroke-width="3"/>
+
+  <!-- Central synthesis node -->
+  <circle cx="100" cy="100" r="25" fill="#58a9fa"/>
+  <circle cx="100" cy="100" r="12" fill="white"/>
+</svg>

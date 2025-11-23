@@ -1,0 +1,37 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer circle representing the council -->
+  <circle cx="100" cy="100" r="80" stroke="#4a90e2" stroke-width="3" fill="none" opacity="0.3"/>
+
+  <!-- Council members (nodes around the circle) -->
+  <!-- Node 1 (top) -->
+  <circle cx="100" cy="20" r="12" fill="#4a90e2"/>
+  <line x1="100" y1="32" x2="100" y2="65" stroke="#4a90e2" stroke-width="2"/>
+
+  <!-- Node 2 (right-top) -->
+  <circle cx="155" cy="45" r="12" fill="#4a90e2"/>
+  <line x1="147" y1="54" x2="120" y2="80" stroke="#4a90e2" stroke-width="2"/>
+
+  <!-- Node 3 (right-bottom) -->
+  <circle cx="155" cy="155" r="12" fill="#4a90e2"/>
+  <line x1="147" y1="146" x2="120" y2="120" stroke="#4a90e2" stroke-width="2"/>
+
+  <!-- Node 4 (bottom) -->
+  <circle cx="100" cy="180" r="12" fill="#4a90e2"/>
+  <line x1="100" y1="168" x2="100" y2="135" stroke="#4a90e2" stroke-width="2"/>
+
+  <!-- Node 5 (left-bottom) -->
+  <circle cx="45" cy="155" r="12" fill="#4a90e2"/>
+  <line x1="53" y1="146" x2="80" y2="120" stroke="#4a90e2" stroke-width="2"/>
+
+  <!-- Node 6 (left-top) -->
+  <circle cx="45" cy="45" r="12" fill="#4a90e2"/>
+  <line x1="53" y1="54" x2="80" y2="80" stroke="#4a90e2" stroke-width="2"/>
+
+  <!-- Central synthesis node (larger, different color) -->
+  <circle cx="100" cy="100" r="20" fill="#58a9fa"/>
+  <circle cx="100" cy="100" r="10" fill="white"/>
+
+  <!-- Decorative arcs suggesting discussion/interaction -->
+  <path d="M 70 70 Q 100 85 130 70" stroke="#4a90e2" stroke-width="1.5" fill="none" opacity="0.4"/>
+  <path d="M 70 130 Q 100 115 130 130" stroke="#4a90e2" stroke-width="1.5" fill="none" opacity="0.4"/>
+</svg>

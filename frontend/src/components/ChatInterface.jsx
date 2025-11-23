@@ -4,6 +4,7 @@ import Stage1 from "./Stage1";
 import Stage2 from "./Stage2";
 import Stage3 from "./Stage3";
 import CouncilAvatars from "./CouncilAvatars";
+import PartnerFooter from "./PartnerFooter";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -272,6 +273,7 @@ export default function ChatInterface({
           </Button>
         </form>
       )}
+      <PartnerFooter />
     </div>
   );
 }
