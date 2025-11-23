@@ -3,11 +3,20 @@ import ReactMarkdown from "react-markdown";
 import Stage1 from "./Stage1";
 import Stage2 from "./Stage2";
 import Stage3 from "./Stage3";
+import CouncilAvatars from "./CouncilAvatars";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+
+// Model configuration (should match backend config.py)
+const COUNCIL_MODELS = [
+  "qwen/qwen3-14b",
+  "x-ai/grok-4.1-fast",
+  "kuaishou/kat-coder-pro-v1",
+];
+const CHAIRMAN_MODEL = "deepseek/deepseek-chat-v3.1";
 
 export default function ChatInterface({
   conversation,
@@ -15,7 +24,11 @@ export default function ChatInterface({
   isLoading,
 }) {
   const [input, setInput] = useState("");
+  const [activeModel, setActiveModel] = useState(null);
   const messagesEndRef = useRef(null);
+  const stage1Ref = useRef(null);
+  const stage2Ref = useRef(null);
+  const stage3Ref = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,6 +52,38 @@ export default function ChatInterface({
       e.preventDefault();
       handleSubmit(e);
     }
+  };
+
+  const handleSelectModel = (modelId) => {
+    setActiveModel(modelId);
+    // Scroll to corresponding stage based on model
+    if (COUNCIL_MODELS.includes(modelId)) {
+      stage1Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (modelId === CHAIRMAN_MODEL) {
+      stage3Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const getModelStatuses = (msg) => {
+    const statuses = {};
+
+    // Council members status
+    COUNCIL_MODELS.forEach(model => {
+      if (msg.loading?.stage1) {
+        statuses[model] = 'thinking';
+      } else if (msg.stage1) {
+        statuses[model] = 'completed';
+      }
+    });
+
+    // Chairman status
+    if (msg.loading?.stage3) {
+      statuses[CHAIRMAN_MODEL] = 'thinking';
+    } else if (msg.stage3) {
+      statuses[CHAIRMAN_MODEL] = 'completed';
+    }
+
+    return statuses;
   };
 
   if (!conversation) {
@@ -130,44 +175,61 @@ export default function ChatInterface({
                       LLM Council
                     </div>
 
-                    {/* Stage 1 */}
-                    {msg.loading?.stage1 && (
-                      <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Running Stage 1: Collecting individual responses...
-                        </span>
-                      </Card>
-                    )}
-                    {msg.stage1 && <Stage1 responses={msg.stage1} />}
-
-                    {/* Stage 2 */}
-                    {msg.loading?.stage2 && (
-                      <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Running Stage 2: Peer rankings...
-                        </span>
-                      </Card>
-                    )}
-                    {msg.stage2 && (
-                      <Stage2
-                        rankings={msg.stage2}
-                        labelToModel={msg.metadata?.label_to_model}
-                        aggregateRankings={msg.metadata?.aggregate_rankings}
+                    {/* Council Avatars */}
+                    {(msg.stage1 || msg.stage2 || msg.stage3 || msg.loading) && (
+                      <CouncilAvatars
+                        councilModels={COUNCIL_MODELS}
+                        chairmanModel={CHAIRMAN_MODEL}
+                        activeModel={activeModel}
+                        onSelectModel={handleSelectModel}
+                        modelStatuses={getModelStatuses(msg)}
                       />
                     )}
 
+                    {/* Stage 1 */}
+                    <div ref={stage1Ref}>
+                      {msg.loading?.stage1 && (
+                        <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                          <span className="text-sm font-medium text-muted-foreground">
+                            Running Stage 1: Collecting individual responses...
+                          </span>
+                        </Card>
+                      )}
+                      {msg.stage1 && <Stage1 responses={msg.stage1} />}
+                    </div>
+
+                    {/* Stage 2 */}
+                    <div ref={stage2Ref}>
+                      {msg.loading?.stage2 && (
+                        <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                          <span className="text-sm font-medium text-muted-foreground">
+                            Running Stage 2: Peer rankings...
+                          </span>
+                        </Card>
+                      )}
+                      {msg.stage2 && (
+                        <Stage2
+                          rankings={msg.stage2}
+                          labelToModel={msg.metadata?.label_to_model}
+                          aggregateRankings={msg.metadata?.aggregate_rankings}
+                        />
+                      )}
+                    </div>
+
                     {/* Stage 3 */}
-                    {msg.loading?.stage3 && (
-                      <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Running Stage 3: Final synthesis...
-                        </span>
-                      </Card>
-                    )}
-                    {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
+                    <div ref={stage3Ref}>
+                      {msg.loading?.stage3 && (
+                        <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                          <span className="text-sm font-medium text-muted-foreground">
+                            Running Stage 3: Final synthesis...
+                          </span>
+                        </Card>
+                      )}
+                      {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
+                    </div>
                   </div>
                 )}
               </div>

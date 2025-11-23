@@ -1,0 +1,136 @@
+.council-avatars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(to bottom, #f8fafc, #ffffff);
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.council-section,
+.chairman-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.avatars-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.model-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.model-avatar:hover {
+  transform: translateY(-2px);
+}
+
+.model-avatar.active .avatar-wrapper {
+  box-shadow: 0 0 0 3px var(--model-color, #4a90e2);
+  transform: scale(1.05);
+}
+
+.avatar-wrapper {
+  position: relative;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+}
+
+.chairman-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #fbbf24;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.model-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 40px;
+}
+
+.model-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.model-status {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.model-status.status-thinking {
+  color: #f59e0b;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.model-status.status-completed {
+  color: #10b981;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .council-avatars {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+
+  .avatars-row {
+    gap: 1rem;
+  }
+
+  .model-avatar {
+    gap: 0.25rem;
+  }
+
+  .model-name {
+    font-size: 0.75rem;
+  }
+
+  .section-label {
+    font-size: 0.625rem;
+  }
+}
