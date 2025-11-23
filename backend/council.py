@@ -61,7 +61,7 @@ async def stage2_collect_rankings(
         ]
     )
 
-    ranking_prompt = f"""**IMPORTANT: You MUST respond in the SAME LANGUAGE as the question below. If the question is in Chinese, respond in Chinese. If in English, respond in English.**
+    ranking_prompt = f"""**CRITICAL INSTRUCTION: You MUST respond in the EXACT SAME LANGUAGE as the question below. If the question is in Chinese, respond ONLY in Chinese. If in English, respond ONLY in English. DO NOT use any other language.**
 
 You are evaluating different responses to the following question.
 
@@ -92,7 +92,9 @@ FINAL RANKING:
 2. Response A
 3. Response B
 
-Now provide your evaluation and ranking (REMEMBER: use the SAME LANGUAGE as the question above):"""
+REMEMBER: Provide your evaluation in the SAME LANGUAGE as the question above. This is mandatory.
+
+Now provide your evaluation and ranking:"""
 
     messages = [{"role": "user", "content": ranking_prompt}]
 
@@ -143,9 +145,9 @@ async def stage3_synthesize_final(
         ]
     )
 
-    chairman_prompt = f"""You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
+    chairman_prompt = f"""**CRITICAL INSTRUCTION: You MUST respond in the EXACT SAME LANGUAGE as the question below. If the question is in Chinese, respond ONLY in Chinese. If in English, respond ONLY in English. DO NOT use any other language.**
 
-IMPORTANT: Please respond in the SAME LANGUAGE as the original question.
+You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
 
 Original Question: {user_query}
 
@@ -160,7 +162,7 @@ Your task as Chairman is to synthesize all of this information into a single, co
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
 
-Provide a clear, well-reasoned final answer that represents the council's collective wisdom (remember to use the SAME LANGUAGE as the question):"""
+REMEMBER: Provide your answer in the SAME LANGUAGE as the original question above. This is mandatory."""
 
     messages = [{"role": "user", "content": chairman_prompt}]
 
