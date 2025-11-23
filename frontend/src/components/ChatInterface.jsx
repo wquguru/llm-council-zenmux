@@ -31,6 +31,7 @@ export default function ChatInterface({
   const [input, setInput] = useState("");
   const [activeModel, setActiveModel] = useState(null);
   const messagesEndRef = useRef(null);
+  const scrollAreaRef = useRef(null);
   const stage1Ref = useRef(null);
   const stage2Ref = useRef(null);
   const stage3Ref = useRef(null);
@@ -86,12 +87,22 @@ export default function ChatInterface({
 
   const handleChairmanClick = (modelId) => {
     setActiveModel(modelId);
-    // Scroll to Stage 3 section when chairman is clicked
-    if (stage3Ref.current) {
-      stage3Ref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+    // 只滚动内部的 ScrollArea,不影响外层容器
+    if (stage3Ref.current && scrollAreaRef.current) {
+      // 获取 Radix ScrollArea 的实际滚动视口 (Viewport)
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        // 计算 stage3 相对于 viewport 的位置
+        const stage3Rect = stage3Ref.current.getBoundingClientRect();
+        const viewportRect = viewport.getBoundingClientRect();
+        const scrollOffset = stage3Rect.top - viewportRect.top + viewport.scrollTop;
+
+        // 平滑滚动到目标位置
+        viewport.scrollTo({
+          top: scrollOffset - 20, // 减去 20px 留一点顶部间距
+          behavior: 'smooth'
+        });
+      }
     }
   };
 
@@ -168,7 +179,7 @@ export default function ChatInterface({
 
   return (
     <div className="flex h-full flex-col">
-      <ScrollArea className="flex-1">
+      <ScrollArea ref={scrollAreaRef} className="flex-1">
         <div className="p-3 pb-16 md:p-6 md:pb-20">
           {conversation.messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground md:py-20">
