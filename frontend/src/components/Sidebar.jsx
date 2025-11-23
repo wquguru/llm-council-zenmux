@@ -20,7 +20,7 @@ export default function Sidebar({
       </div>
 
       <ScrollArea className="flex-1 min-h-0" scrollHideDelay={0}>
-        <div className="p-3 pr-4">
+        <div className="p-3 pr-4 overflow-hidden">
           {conversations.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
               No conversations yet
@@ -30,15 +30,15 @@ export default function Sidebar({
               <div
                 key={conv.id}
                 className={cn(
-                  "mb-2 cursor-pointer rounded-lg p-3 transition-all hover:bg-muted/50 hover:shadow-sm",
+                  "mb-2 cursor-pointer rounded-lg p-3 transition-all hover:bg-muted/50 hover:shadow-sm overflow-hidden",
                   conv.id === currentConversationId &&
                     "bg-primary/10 border border-primary shadow-sm",
                 )}
                 onClick={() => onSelectConversation(conv.id)}
               >
-                <div className="mb-1 text-sm font-semibold truncate w-full min-w-0">
+                <p className="mb-1 text-sm font-semibold truncate">
                   {conv.title || "New Conversation"}
-                </div>
+                </p>
                 <div className="text-xs text-muted-foreground mono">
                   {conv.message_count} messages
                 </div>
