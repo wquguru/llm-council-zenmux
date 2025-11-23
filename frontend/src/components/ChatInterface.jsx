@@ -64,7 +64,7 @@ export default function ChatInterface({
         formRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "end",
-          inline: "nearest"
+          inline: "nearest",
         });
       }, 300);
     };
@@ -104,17 +104,20 @@ export default function ChatInterface({
     // 只滚动内部的 ScrollArea,不影响外层容器
     if (stage3Ref.current && scrollAreaRef.current) {
       // 获取 Radix ScrollArea 的实际滚动视口 (Viewport)
-      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      const viewport = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
       if (viewport) {
         // 计算 stage3 相对于 viewport 的位置
         const stage3Rect = stage3Ref.current.getBoundingClientRect();
         const viewportRect = viewport.getBoundingClientRect();
-        const scrollOffset = stage3Rect.top - viewportRect.top + viewport.scrollTop;
+        const scrollOffset =
+          stage3Rect.top - viewportRect.top + viewport.scrollTop;
 
         // 平滑滚动到目标位置
         viewport.scrollTo({
           top: scrollOffset - 20, // 减去 20px 留一点顶部间距
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     }
@@ -125,17 +128,20 @@ export default function ChatInterface({
     if (stage2Ref.current && scrollAreaRef.current) {
       setTimeout(() => {
         // 获取 Radix ScrollArea 的实际滚动视口 (Viewport)
-        const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        const viewport = scrollAreaRef.current.querySelector(
+          "[data-radix-scroll-area-viewport]",
+        );
         if (viewport) {
           // 计算 stage2 相对于 viewport 的位置
           const stage2Rect = stage2Ref.current.getBoundingClientRect();
           const viewportRect = viewport.getBoundingClientRect();
-          const scrollOffset = stage2Rect.top - viewportRect.top + viewport.scrollTop;
+          const scrollOffset =
+            stage2Rect.top - viewportRect.top + viewport.scrollTop;
 
           // 平滑滚动到目标位置
           viewport.scrollTo({
             top: scrollOffset - 20, // 减去 20px 留一点顶部间距
-            behavior: 'smooth'
+            behavior: "smooth",
           });
         }
       }, 50);
@@ -146,19 +152,19 @@ export default function ChatInterface({
     const statuses = {};
 
     // Council members status
-    COUNCIL_MODELS.forEach(model => {
+    COUNCIL_MODELS.forEach((model) => {
       if (msg.loading?.stage1) {
-        statuses[model] = 'thinking';
+        statuses[model] = "thinking";
       } else if (msg.stage1) {
-        statuses[model] = 'completed';
+        statuses[model] = "completed";
       }
     });
 
     // Chairman status
     if (msg.loading?.stage3) {
-      statuses[CHAIRMAN_MODEL] = 'thinking';
+      statuses[CHAIRMAN_MODEL] = "thinking";
     } else if (msg.stage3) {
-      statuses[CHAIRMAN_MODEL] = 'completed';
+      statuses[CHAIRMAN_MODEL] = "completed";
     }
 
     return statuses;
@@ -169,10 +175,10 @@ export default function ChatInterface({
       <div className="flex h-full flex-col">
         <div className="flex flex-1 flex-col items-center justify-center text-center text-muted-foreground p-6">
           <h2 className="mb-3 text-2xl font-bold text-foreground md:text-3xl">
-            {t('welcomeTitle')}
+            {t("welcomeTitle")}
           </h2>
           <p className="text-base md:text-lg max-w-md mb-6">
-            {t('welcomeSubtitle')}
+            {t("welcomeSubtitle")}
           </p>
           <Button
             onClick={onNewConversation}
@@ -193,7 +199,7 @@ export default function ChatInterface({
             >
               <path d="M12 5v14M5 12h14" />
             </svg>
-            {t('newConversation')}
+            {t("newConversation")}
           </Button>
         </div>
       </div>
@@ -206,13 +212,13 @@ export default function ChatInterface({
         // Empty state: centered input with model display
         <div className="flex flex-1 flex-col items-center justify-center px-4 md:px-6">
           <div className="w-full max-w-3xl mx-auto space-y-6 md:space-y-8">
-            {/* Welcome message */}
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                {t('welcomeTitle')}
+            {/* Welcome message - smaller for empty state */}
+            <div className="text-center space-y-1">
+              <h2 className="text-lg md:text-xl font-bold text-foreground">
+                {t("welcomeTitle")}
               </h2>
-              <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
-                {t('welcomeSubtitle')}
+              <p className="text-xs md:text-sm text-muted-foreground max-w-lg mx-auto">
+                {t("welcomeSubtitle")}
               </p>
             </div>
 
@@ -225,9 +231,9 @@ export default function ChatInterface({
                       ref={textareaRef}
                       className={cn(
                         "min-h-[120px] max-h-[300px] resize-y text-sm md:text-base shadow-md border-2 focus:border-primary pr-16",
-                        isOverLimit && "border-red-500 focus:border-red-500"
+                        isOverLimit && "border-red-500 focus:border-red-500",
                       )}
-                      placeholder={t('placeholder')}
+                      placeholder={t("placeholder")}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
@@ -235,10 +241,12 @@ export default function ChatInterface({
                       rows={5}
                     />
                     {/* Character counter */}
-                    <div className={cn(
-                      "absolute bottom-2 right-2 text-xs",
-                      getCounterColor()
-                    )}>
+                    <div
+                      className={cn(
+                        "absolute bottom-2 right-2 text-xs",
+                        getCounterColor(),
+                      )}
+                    >
                       {charCount}/{MAX_MESSAGE_LENGTH}
                     </div>
                   </div>
@@ -247,7 +255,7 @@ export default function ChatInterface({
                     disabled={!input.trim() || isLoading || isOverLimit}
                     className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-md hover:shadow-lg transition-all"
                   >
-                    {t('send')}
+                    {t("send")}
                   </Button>
                 </div>
               </div>
@@ -268,162 +276,171 @@ export default function ChatInterface({
         // Messages view: scrollable content with fixed input at bottom
         <>
           <ScrollArea ref={scrollAreaRef} className="flex-1">
-            <div className={cn(
-              "p-3 md:p-6",
-              // Add bottom padding only if input form is visible (no stage3 completed yet)
-              !conversation.messages.some(msg => msg.role === 'assistant' && msg.stage3)
-                ? "pb-36 md:pb-44"
-                : "pb-6 md:pb-8"
-            )}>
-              {conversation.messages.map((msg, index) => (
-              <div key={index} className="mb-6 md:mb-8">
-                {msg.role === "user" ? (
-                  <div className="mb-4">
-                    <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
-                      {t('you')}
-                    </div>
-                    <Card className="max-w-full border-primary/30 bg-primary/5 p-4 md:max-w-[80%] shadow-sm hover:shadow-md transition-shadow">
-                      <div className="markdown-content text-sm md:text-base">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
-                    </Card>
-                  </div>
-                ) : (
-                  <div className="mb-4">
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
-                        {t('llmCouncil')}
-                      </span>
-                      {msg.stage3 && (
-                        <ShareButton
-                          conversationId={conversationId}
-                          conversationTitle={conversation?.title}
-                        />
-                      )}
-                    </div>
-
-                    {/* Council Avatars */}
-                    {(msg.stage1 || msg.stage2 || msg.stage3 || msg.loading) && (
-                      <CouncilAvatars
-                        councilModels={COUNCIL_MODELS}
-                        chairmanModel={CHAIRMAN_MODEL}
-                        activeModel={activeModel}
-                        onSelectModel={handleSelectModel}
-                        onChairmanClick={handleChairmanClick}
-                        modelStatuses={getModelStatuses(msg)}
-                      />
-                    )}
-
-                    {/* Stage 1 */}
-                    <div ref={stage1Ref}>
-                      {msg.loading?.stage1 && (
-                        <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {t('loadingStage1')}
-                          </span>
-                        </Card>
-                      )}
-                      {msg.stage1 && (
-                        <Stage1
-                          responses={msg.stage1}
-                          activeModel={activeModel}
-                          onSelectModel={handleSelectModel}
-                        />
-                      )}
-                    </div>
-
-                    {/* Stage 2 */}
-                    <div ref={stage2Ref}>
-                      {msg.loading?.stage2 && (
-                        <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {t('loadingStage2')}
-                          </span>
-                        </Card>
-                      )}
-                      {msg.stage2 && (
-                        <Stage2
-                          rankings={msg.stage2}
-                          labelToModel={msg.metadata?.label_to_model}
-                          aggregateRankings={msg.metadata?.aggregate_rankings}
-                          activeModel={activeModel}
-                          onSelectModel={handleSelectModel}
-                          scrollToStage2={scrollToStage2}
-                        />
-                      )}
-                    </div>
-
-                    {/* Stage 3 */}
-                    <div ref={stage3Ref}>
-                      {msg.loading?.stage3 && (
-                        <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {t('loadingStage3')}
-                          </span>
-                        </Card>
-                      )}
-                      {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="flex items-center gap-3 p-4">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {t('consultingCouncil')}
-                </span>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-
-        {/* Only show input form if conversation is not complete (no stage3 response yet) */}
-        {!conversation.messages.some(msg => msg.role === 'assistant' && msg.stage3) && (
-          <form
-            ref={formRef}
-            className="flex items-end gap-3 border-t bg-card p-4 md:gap-4 md:p-6 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
-            onSubmit={handleSubmit}
-          >
-            <div className="relative flex-1">
-              <Textarea
-                ref={textareaRef}
-                className={cn(
-                  "min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm pr-16",
-                  isOverLimit && "border-red-500 focus:border-red-500"
-                )}
-                placeholder={t('placeholder')}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isLoading}
-                rows={3}
-              />
-              {/* Character counter */}
-              <div className={cn(
-                "absolute bottom-2 right-2 text-xs",
-                getCounterColor()
-              )}>
-                {charCount}/{MAX_MESSAGE_LENGTH}
-              </div>
-            </div>
-            <Button
-              type="submit"
-              disabled={!input.trim() || isLoading || isOverLimit}
-              className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-sm hover:shadow-md transition-all"
+            <div
+              className={cn(
+                "p-3 md:p-6",
+                // Add bottom padding only if input form is visible (no stage3 completed yet)
+                !conversation.messages.some(
+                  (msg) => msg.role === "assistant" && msg.stage3,
+                )
+                  ? "pb-36 md:pb-44"
+                  : "pb-6 md:pb-8",
+              )}
             >
-              {t('send')}
-            </Button>
-          </form>
-        )}
-      </>
+              {conversation.messages.map((msg, index) => (
+                <div key={index} className="mb-6 md:mb-8">
+                  {msg.role === "user" ? (
+                    <div className="mb-4">
+                      <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
+                        {t("you")}
+                      </div>
+                      <Card className="max-w-full border-primary/30 bg-primary/5 p-4 md:max-w-[80%] shadow-sm hover:shadow-md transition-shadow">
+                        <div className="markdown-content text-sm md:text-base">
+                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        </div>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="mb-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
+                          {t("llmCouncil")}
+                        </span>
+                        {msg.stage3 && (
+                          <ShareButton
+                            conversationId={conversationId}
+                            conversationTitle={conversation?.title}
+                          />
+                        )}
+                      </div>
+
+                      {/* Council Avatars */}
+                      {(msg.stage1 ||
+                        msg.stage2 ||
+                        msg.stage3 ||
+                        msg.loading) && (
+                        <CouncilAvatars
+                          councilModels={COUNCIL_MODELS}
+                          chairmanModel={CHAIRMAN_MODEL}
+                          activeModel={activeModel}
+                          modelStatuses={getModelStatuses(msg)}
+                        />
+                      )}
+
+                      {/* Stage 1 */}
+                      <div ref={stage1Ref}>
+                        {msg.loading?.stage1 && (
+                          <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {t("loadingStage1")}
+                            </span>
+                          </Card>
+                        )}
+                        {msg.stage1 && (
+                          <Stage1
+                            responses={msg.stage1}
+                            activeModel={activeModel}
+                            onSelectModel={handleSelectModel}
+                          />
+                        )}
+                      </div>
+
+                      {/* Stage 2 */}
+                      <div ref={stage2Ref}>
+                        {msg.loading?.stage2 && (
+                          <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {t("loadingStage2")}
+                            </span>
+                          </Card>
+                        )}
+                        {msg.stage2 && (
+                          <Stage2
+                            rankings={msg.stage2}
+                            labelToModel={msg.metadata?.label_to_model}
+                            aggregateRankings={msg.metadata?.aggregate_rankings}
+                            activeModel={activeModel}
+                            onSelectModel={handleSelectModel}
+                            scrollToStage2={scrollToStage2}
+                          />
+                        )}
+                      </div>
+
+                      {/* Stage 3 */}
+                      <div ref={stage3Ref}>
+                        {msg.loading?.stage3 && (
+                          <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {t("loadingStage3")}
+                            </span>
+                          </Card>
+                        )}
+                        {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex items-center gap-3 p-4">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t("consultingCouncil")}
+                  </span>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          {/* Only show input form if conversation is not complete (no stage3 response yet) */}
+          {!conversation.messages.some(
+            (msg) => msg.role === "assistant" && msg.stage3,
+          ) && (
+            <form
+              ref={formRef}
+              className="flex items-end gap-3 border-t bg-card p-4 md:gap-4 md:p-6 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
+              onSubmit={handleSubmit}
+            >
+              <div className="relative flex-1">
+                <Textarea
+                  ref={textareaRef}
+                  className={cn(
+                    "min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm pr-16",
+                    isOverLimit && "border-red-500 focus:border-red-500",
+                  )}
+                  placeholder={t("placeholder")}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={isLoading}
+                  rows={3}
+                />
+                {/* Character counter */}
+                <div
+                  className={cn(
+                    "absolute bottom-2 right-2 text-xs",
+                    getCounterColor(),
+                  )}
+                >
+                  {charCount}/{MAX_MESSAGE_LENGTH}
+                </div>
+              </div>
+              <Button
+                type="submit"
+                disabled={!input.trim() || isLoading || isOverLimit}
+                className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-sm hover:shadow-md transition-all"
+              >
+                {t("send")}
+              </Button>
+            </form>
+          )}
+        </>
       )}
     </div>
   );
