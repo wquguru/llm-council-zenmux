@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import './Stage2.css';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 function deAnonymizeText(text, labelToModel) {
   if (!labelToModel) return text;
@@ -15,85 +15,90 @@ function deAnonymizeText(text, labelToModel) {
 }
 
 export default function Stage2({ rankings, labelToModel, aggregateRankings }) {
-  const [activeTab, setActiveTab] = useState(0);
-
   if (!rankings || rankings.length === 0) {
     return null;
   }
 
   return (
-    <div className="stage stage2">
-      <h3 className="stage-title">Stage 2: Peer Rankings</h3>
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle>Stage 2: Peer Rankings</CardTitle>
+        <CardDescription>
+          Each model evaluated all responses (anonymized as Response A, B, C, etc.) and provided rankings.
+          Below, model names are shown in <strong>bold</strong> for readability, but the original evaluation used anonymous labels.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <h4 className="mb-3 text-sm font-semibold">Raw Evaluations</h4>
 
-      <h4>Raw Evaluations</h4>
-      <p className="stage-description">
-        Each model evaluated all responses (anonymized as Response A, B, C, etc.) and provided rankings.
-        Below, model names are shown in <strong>bold</strong> for readability, but the original evaluation used anonymous labels.
-      </p>
+        <Tabs defaultValue="0" className="w-full">
+          <TabsList className="mb-4 w-full flex-wrap justify-start h-auto gap-1">
+            {rankings.map((rank, index) => (
+              <TabsTrigger key={index} value={String(index)} className="text-xs md:text-sm">
+                {rank.model.split('/')[1] || rank.model}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-      <div className="tabs">
-        {rankings.map((rank, index) => (
-          <button
-            key={index}
-            className={`tab ${activeTab === index ? 'active' : ''}`}
-            onClick={() => setActiveTab(index)}
-          >
-            {rank.model.split('/')[1] || rank.model}
-          </button>
-        ))}
-      </div>
+          {rankings.map((rank, index) => (
+            <TabsContent key={index} value={String(index)}>
+              <div className="mb-2 text-sm font-medium text-muted-foreground">{rank.model}</div>
+              <div className="markdown-content rounded-lg border bg-card p-4">
+                <ReactMarkdown>
+                  {deAnonymizeText(rank.ranking, labelToModel)}
+                </ReactMarkdown>
+              </div>
 
-      <div className="tab-content">
-        <div className="ranking-model">
-          {rankings[activeTab].model}
-        </div>
-        <div className="ranking-content markdown-content">
-          <ReactMarkdown>
-            {deAnonymizeText(rankings[activeTab].ranking, labelToModel)}
-          </ReactMarkdown>
-        </div>
+              {rank.parsed_ranking && rank.parsed_ranking.length > 0 && (
+                <div className="mt-3 rounded-lg border bg-muted/50 p-3">
+                  <strong className="text-sm">Extracted Ranking:</strong>
+                  <ol className="ml-4 mt-2 list-decimal text-sm">
+                    {rank.parsed_ranking.map((label, i) => (
+                      <li key={i} className="mb-1">
+                        {labelToModel && labelToModel[label]
+                          ? labelToModel[label].split('/')[1] || labelToModel[label]
+                          : label}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </TabsContent>
+          ))}
+        </Tabs>
 
-        {rankings[activeTab].parsed_ranking &&
-         rankings[activeTab].parsed_ranking.length > 0 && (
-          <div className="parsed-ranking">
-            <strong>Extracted Ranking:</strong>
-            <ol>
-              {rankings[activeTab].parsed_ranking.map((label, i) => (
-                <li key={i}>
-                  {labelToModel && labelToModel[label]
-                    ? labelToModel[label].split('/')[1] || labelToModel[label]
-                    : label}
-                </li>
+        {aggregateRankings && aggregateRankings.length > 0 && (
+          <div className="mt-6">
+            <h4 className="mb-2 text-sm font-semibold">Aggregate Rankings (Street Cred)</h4>
+            <p className="mb-3 text-sm text-muted-foreground">
+              Combined results across all peer evaluations (lower score is better):
+            </p>
+            <div className="space-y-2">
+              {aggregateRankings.map((agg, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-lg border bg-card p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      #{index + 1}
+                    </span>
+                    <span className="font-medium">
+                      {agg.model.split('/')[1] || agg.model}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>
+                      Avg: <span className="font-semibold">{agg.average_rank.toFixed(2)}</span>
+                    </span>
+                    <span>({agg.rankings_count} votes)</span>
+                  </div>
+                </div>
               ))}
-            </ol>
+            </div>
           </div>
         )}
-      </div>
-
-      {aggregateRankings && aggregateRankings.length > 0 && (
-        <div className="aggregate-rankings">
-          <h4>Aggregate Rankings (Street Cred)</h4>
-          <p className="stage-description">
-            Combined results across all peer evaluations (lower score is better):
-          </p>
-          <div className="aggregate-list">
-            {aggregateRankings.map((agg, index) => (
-              <div key={index} className="aggregate-item">
-                <span className="rank-position">#{index + 1}</span>
-                <span className="rank-model">
-                  {agg.model.split('/')[1] || agg.model}
-                </span>
-                <span className="rank-score">
-                  Avg: {agg.average_rank.toFixed(2)}
-                </span>
-                <span className="rank-count">
-                  ({agg.rankings_count} votes)
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

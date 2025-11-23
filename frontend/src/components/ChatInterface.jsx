@@ -3,7 +3,11 @@ import ReactMarkdown from 'react-markdown';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
-import './ChatInterface.css';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 export default function ChatInterface({
   conversation,
@@ -39,14 +43,14 @@ export default function ChatInterface({
 
   if (!conversation) {
     return (
-      <div className="chat-interface">
-        <div className="chat-header">
-          <h1 className="chat-title">LLM Council</h1>
+      <div className="flex h-full flex-col">
+        <div className="hidden items-center justify-between border-b bg-muted/40 px-6 py-4 md:flex">
+          <h1 className="text-xl font-semibold">LLM Council</h1>
           <a
             href="https://github.com/wquguru/llm-council-zenmux"
             target="_blank"
             rel="noopener noreferrer"
-            className="github-link"
+            className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             title="View on GitHub"
           >
             <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
@@ -54,26 +58,27 @@ export default function ChatInterface({
             </svg>
           </a>
         </div>
-        <div className="privacy-warning">
-          ⚠️ 隐私提示：所有对话对所有访问者可见，请勿输入敏感信息
+        <div className="flex items-center justify-center gap-2 border-b bg-yellow-50 px-4 py-2 text-xs font-medium text-yellow-800 md:px-6 md:py-3 md:text-sm">
+          <span>⚠️</span>
+          <span className="line-clamp-1 md:line-clamp-none">隐私提示：所有对话对所有访问者可见，请勿输入敏感信息</span>
         </div>
-        <div className="empty-state">
-          <h2>Welcome to LLM Council</h2>
-          <p>Create a new conversation to get started</p>
+        <div className="flex flex-1 flex-col items-center justify-center text-center text-muted-foreground">
+          <h2 className="mb-2 text-xl font-semibold text-foreground md:text-2xl">Welcome to LLM Council</h2>
+          <p className="text-sm md:text-base">Create a new conversation to get started</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="chat-interface">
-      <div className="chat-header">
-        <h1 className="chat-title">LLM Council</h1>
+    <div className="flex h-full flex-col">
+      <div className="hidden items-center justify-between border-b bg-muted/40 px-6 py-4 md:flex">
+        <h1 className="text-xl font-semibold">LLM Council</h1>
         <a
           href="https://github.com/wquguru/llm-council-zenmux"
           target="_blank"
           rel="noopener noreferrer"
-          className="github-link"
+          className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           title="View on GitHub"
         >
           <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
@@ -81,83 +86,87 @@ export default function ChatInterface({
           </svg>
         </a>
       </div>
-      <div className="privacy-warning">
-        ⚠️ 隐私提示：所有对话对所有访问者可见，请勿输入敏感信息
+      <div className="flex items-center justify-center gap-2 border-b bg-yellow-50 px-4 py-2 text-xs font-medium text-yellow-800 md:px-6 md:py-3 md:text-sm">
+        <span>⚠️</span>
+        <span className="line-clamp-1 md:line-clamp-none">隐私提示：所有对话对所有访问者可见，请勿输入敏感信息</span>
       </div>
-      <div className="messages-container">
-        {conversation.messages.length === 0 ? (
-          <div className="empty-state">
-            <h2>Start a conversation</h2>
-            <p>Ask a question to consult the LLM Council</p>
-          </div>
-        ) : (
-          conversation.messages.map((msg, index) => (
-            <div key={index} className="message-group">
-              {msg.role === 'user' ? (
-                <div className="user-message">
-                  <div className="message-label">You</div>
-                  <div className="message-content">
-                    <div className="markdown-content">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="assistant-message">
-                  <div className="message-label">LLM Council</div>
 
-                  {/* Stage 1 */}
-                  {msg.loading?.stage1 && (
-                    <div className="stage-loading">
-                      <div className="spinner"></div>
-                      <span>Running Stage 1: Collecting individual responses...</span>
-                    </div>
-                  )}
-                  {msg.stage1 && <Stage1 responses={msg.stage1} />}
-
-                  {/* Stage 2 */}
-                  {msg.loading?.stage2 && (
-                    <div className="stage-loading">
-                      <div className="spinner"></div>
-                      <span>Running Stage 2: Peer rankings...</span>
-                    </div>
-                  )}
-                  {msg.stage2 && (
-                    <Stage2
-                      rankings={msg.stage2}
-                      labelToModel={msg.metadata?.label_to_model}
-                      aggregateRankings={msg.metadata?.aggregate_rankings}
-                    />
-                  )}
-
-                  {/* Stage 3 */}
-                  {msg.loading?.stage3 && (
-                    <div className="stage-loading">
-                      <div className="spinner"></div>
-                      <span>Running Stage 3: Final synthesis...</span>
-                    </div>
-                  )}
-                  {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
-                </div>
-              )}
+      <ScrollArea className="flex-1">
+        <div className="p-3 md:p-6">
+          {conversation.messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground md:py-20">
+              <h2 className="mb-2 text-xl font-semibold text-foreground md:text-2xl">Start a conversation</h2>
+              <p className="text-sm md:text-base">Ask a question to consult the LLM Council</p>
             </div>
-          ))
-        )}
+          ) : (
+            conversation.messages.map((msg, index) => (
+              <div key={index} className="mb-6 md:mb-8">
+                {msg.role === 'user' ? (
+                  <div className="mb-4">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">You</div>
+                    <Card className="max-w-full border-primary/20 bg-primary/5 p-3 md:max-w-[80%] md:p-4">
+                      <div className="markdown-content text-sm md:text-base">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">LLM Council</div>
 
-        {isLoading && (
-          <div className="loading-indicator">
-            <div className="spinner"></div>
-            <span>Consulting the council...</span>
-          </div>
-        )}
+                    {/* Stage 1 */}
+                    {msg.loading?.stage1 && (
+                      <Card className="mb-3 flex items-center gap-3 border-muted bg-muted/50 p-4">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                        <span className="text-sm italic text-muted-foreground">Running Stage 1: Collecting individual responses...</span>
+                      </Card>
+                    )}
+                    {msg.stage1 && <Stage1 responses={msg.stage1} />}
 
-        <div ref={messagesEndRef} />
-      </div>
+                    {/* Stage 2 */}
+                    {msg.loading?.stage2 && (
+                      <Card className="mb-3 flex items-center gap-3 border-muted bg-muted/50 p-4">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                        <span className="text-sm italic text-muted-foreground">Running Stage 2: Peer rankings...</span>
+                      </Card>
+                    )}
+                    {msg.stage2 && (
+                      <Stage2
+                        rankings={msg.stage2}
+                        labelToModel={msg.metadata?.label_to_model}
+                        aggregateRankings={msg.metadata?.aggregate_rankings}
+                      />
+                    )}
+
+                    {/* Stage 3 */}
+                    {msg.loading?.stage3 && (
+                      <Card className="mb-3 flex items-center gap-3 border-muted bg-muted/50 p-4">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                        <span className="text-sm italic text-muted-foreground">Running Stage 3: Final synthesis...</span>
+                      </Card>
+                    )}
+                    {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+
+          {isLoading && (
+            <div className="flex items-center gap-3 p-4">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+              <span className="text-sm text-muted-foreground">Consulting the council...</span>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
 
       {conversation.messages.length === 0 && (
-        <form className="input-form" onSubmit={handleSubmit}>
-          <textarea
-            className="message-input"
+        <form className="flex items-end gap-2 border-t bg-muted/40 p-3 md:gap-3 md:p-6" onSubmit={handleSubmit}>
+          <Textarea
+            className="min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base"
             placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -165,13 +174,13 @@ export default function ChatInterface({
             disabled={isLoading}
             rows={3}
           />
-          <button
+          <Button
             type="submit"
-            className="send-button"
             disabled={!input.trim() || isLoading}
+            className="h-auto px-4 py-2 md:px-8 md:py-3"
           >
             Send
-          </button>
+          </Button>
         </form>
       )}
     </div>

@@ -1,36 +1,37 @@
-import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import './Stage1.css';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Stage1({ responses }) {
-  const [activeTab, setActiveTab] = useState(0);
-
   if (!responses || responses.length === 0) {
     return null;
   }
 
   return (
-    <div className="stage stage1">
-      <h3 className="stage-title">Stage 1: Individual Responses</h3>
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle>Stage 1: Individual Responses</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="0" className="w-full">
+          <TabsList className="mb-4 w-full flex-wrap justify-start h-auto gap-1">
+            {responses.map((resp, index) => (
+              <TabsTrigger key={index} value={String(index)} className="text-xs md:text-sm">
+                {resp.model.split('/')[1] || resp.model}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-      <div className="tabs">
-        {responses.map((resp, index) => (
-          <button
-            key={index}
-            className={`tab ${activeTab === index ? 'active' : ''}`}
-            onClick={() => setActiveTab(index)}
-          >
-            {resp.model.split('/')[1] || resp.model}
-          </button>
-        ))}
-      </div>
-
-      <div className="tab-content">
-        <div className="model-name">{responses[activeTab].model}</div>
-        <div className="response-text markdown-content">
-          <ReactMarkdown>{responses[activeTab].response}</ReactMarkdown>
-        </div>
-      </div>
-    </div>
+          {responses.map((resp, index) => (
+            <TabsContent key={index} value={String(index)}>
+              <div className="mb-2 text-sm font-medium text-muted-foreground">{resp.model}</div>
+              <div className="markdown-content rounded-lg border bg-card p-4">
+                <ReactMarkdown>{resp.response}</ReactMarkdown>
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }

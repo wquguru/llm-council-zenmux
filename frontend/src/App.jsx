@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import { api } from './api';
-import './App.css';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 
 function App() {
   const [conversations, setConversations] = useState([]);
@@ -181,19 +183,58 @@ function App() {
     }
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-    <div className="app">
-      <Sidebar
-        conversations={conversations}
-        currentConversationId={currentConversationId}
-        onSelectConversation={handleSelectConversation}
-        onNewConversation={handleNewConversation}
-      />
-      <ChatInterface
-        conversation={currentConversation}
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-      />
+    <div className="flex h-screen w-screen overflow-hidden">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block md:w-64">
+        <Sidebar
+          conversations={conversations}
+          currentConversationId={currentConversationId}
+          onSelectConversation={handleSelectConversation}
+          onNewConversation={handleNewConversation}
+        />
+      </div>
+
+      {/* Mobile Menu Sheet */}
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetContent side="left" className="w-[280px] p-0">
+          <Sidebar
+            conversations={conversations}
+            currentConversationId={currentConversationId}
+            onSelectConversation={(id) => {
+              handleSelectConversation(id);
+              setIsMobileMenuOpen(false);
+            }}
+            onNewConversation={() => {
+              handleNewConversation();
+              setIsMobileMenuOpen(false);
+            }}
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Mobile Menu Button */}
+        <div className="flex items-center gap-2 border-b bg-muted/40 p-4 md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold">LLM Council</h1>
+        </div>
+
+        <ChatInterface
+          conversation={currentConversation}
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   );
 }
