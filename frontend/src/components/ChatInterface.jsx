@@ -323,6 +323,8 @@ export default function ChatInterface({
                           councilModels={COUNCIL_MODELS}
                           chairmanModel={CHAIRMAN_MODEL}
                           activeModel={activeModel}
+                          onSelectModel={handleSelectModel}
+                          onChairmanClick={handleChairmanClick}
                           modelStatuses={getModelStatuses(msg)}
                         />
                       )}

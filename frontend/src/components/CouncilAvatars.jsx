@@ -11,9 +11,8 @@ import { Crown, ExternalLink } from "lucide-react";
 import { Qwen, Grok, DeepSeek, HuggingFace } from "@lobehub/icons";
 import "./CouncilAvatars.css";
 
-// Zenmux model page URL
-const getZenmuxModelUrl = (modelId) =>
-  `https://zenmux.ai/settings/chat?model=${encodeURIComponent(modelId)}`;
+// Zenmux invite URL
+const ZENMUX_INVITE_URL = "https://zenmux.ai/invite/ICIEEXGV14722567";
 
 // Model configuration with brand colors and metadata
 const MODEL_CONFIG = {
@@ -44,7 +43,7 @@ const MODEL_CONFIG = {
   },
 };
 
-const ModelAvatar = ({ modelId, isActive, status = "idle" }) => {
+const ModelAvatar = ({ modelId, isActive, onClick, status = "idle" }) => {
   const config = MODEL_CONFIG[modelId];
   if (!config) return null;
 
@@ -56,8 +55,8 @@ const ModelAvatar = ({ modelId, isActive, status = "idle" }) => {
 
   const IconComponent = config.Icon;
 
-  const handleClick = () => {
-    window.open(getZenmuxModelUrl(modelId), "_blank", "noopener,noreferrer");
+  const handleTooltipClick = () => {
+    window.open(ZENMUX_INVITE_URL, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -65,22 +64,18 @@ const ModelAvatar = ({ modelId, isActive, status = "idle" }) => {
       <TooltipTrigger asChild>
         <div
           className={`model-avatar ${isActive ? "active" : ""} ${config.isChairman ? "chairman" : ""}`}
-          onClick={handleClick}
+          onClick={onClick}
           style={{ "--model-color": config.color }}
         >
           <div className="avatar-wrapper">
             <Avatar className="h-12 w-12 cursor-pointer transition-all hover:scale-110">
               {IconComponent ? (
                 <div className="flex h-full w-full items-center justify-center p-2">
-                  <IconComponent size={30} />
+                  <IconComponent size={32} />
                 </div>
               ) : (
                 <AvatarFallback
-                  style={{
-                    backgroundColor: config.color,
-                    color: "white",
-                    fontSize: "0.875rem",
-                  }}
+                  style={{ backgroundColor: config.color, color: "white" }}
                 >
                   {config.shortName}
                 </AvatarFallback>
@@ -102,7 +97,7 @@ const ModelAvatar = ({ modelId, isActive, status = "idle" }) => {
           </div>
         </div>
       </TooltipTrigger>
-      <TooltipContent>
+      <TooltipContent className="cursor-pointer" onClick={handleTooltipClick}>
         <div className="flex items-center gap-1.5">
           <span className="font-mono text-xs">{modelId}</span>
           <ExternalLink size={10} className="opacity-60" />
@@ -116,7 +111,9 @@ export const CouncilAvatars = ({
   councilModels = [],
   chairmanModel,
   activeModel,
+  onSelectModel,
   modelStatuses = {},
+  onChairmanClick,
 }) => {
   const { t } = useTranslation();
 
@@ -131,6 +128,7 @@ export const CouncilAvatars = ({
                 key={modelId}
                 modelId={modelId}
                 isActive={activeModel === modelId}
+                onClick={() => onSelectModel?.(modelId)}
                 status={modelStatuses[modelId]}
               />
             ))}
@@ -143,6 +141,7 @@ export const CouncilAvatars = ({
             <ModelAvatar
               modelId={chairmanModel}
               isActive={activeModel === chairmanModel}
+              onClick={() => onChairmanClick?.(chairmanModel)}
               status={modelStatuses[chairmanModel]}
             />
           </div>
