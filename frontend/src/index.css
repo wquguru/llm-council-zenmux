@@ -173,6 +173,9 @@
 /* Global markdown styling */
 .markdown-content {
   padding: 12px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .markdown-content p {
@@ -217,6 +220,7 @@
   border-radius: var(--radius);
   overflow-x: auto;
   margin: 0 0 12px 0;
+  max-width: 100%;
 }
 
 .markdown-content code {
@@ -239,4 +243,25 @@
   padding-left: 16px;
   border-left: 4px solid hsl(var(--border));
   color: hsl(var(--muted-foreground));
+}
+
+.markdown-content table {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+  margin: 0 0 12px 0;
+  border-collapse: collapse;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 8px;
+  border: 1px solid hsl(var(--border));
+  text-align: left;
+}
+
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
 }

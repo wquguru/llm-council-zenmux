@@ -74,6 +74,7 @@ const ModelAvatar = ({ modelId, isActive, onClick, status = 'idle' }) => {
       </div>
       <div className="model-info">
         <div className="model-name">{config.name}</div>
+        <div className="model-id">{modelId}</div>
         {status !== 'idle' && (
           <div className={`model-status status-${status}`}>
             {statusText[status]}

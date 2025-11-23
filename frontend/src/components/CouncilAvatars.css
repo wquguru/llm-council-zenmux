@@ -112,6 +112,14 @@
   color: #334155;
 }
 
+.model-id {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #94a3b8;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  margin-top: 2px;
+}
+
 .model-status {
   font-size: 0.75rem;
   color: #64748b;
@@ -156,6 +164,10 @@
 
   .model-name {
     font-size: 0.75rem;
+  }
+
+  .model-id {
+    font-size: 0.625rem;
   }
 
   .section-label {

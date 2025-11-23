@@ -179,19 +179,60 @@ export default function ChatInterface({
 
   return (
     <div className="flex h-full flex-col">
-      <ScrollArea ref={scrollAreaRef} className="flex-1">
-        <div className="p-3 pb-16 md:p-6 md:pb-20">
-          {conversation.messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground md:py-20">
-              <h2 className="mb-3 text-2xl font-bold text-foreground md:text-3xl md:hidden">
-                Start a conversation
+      {conversation.messages.length === 0 ? (
+        // Empty state: centered input with model display
+        <div className="flex flex-1 flex-col items-center justify-center px-4 md:px-6">
+          <div className="w-full max-w-3xl mx-auto space-y-6 md:space-y-8">
+            {/* Welcome message */}
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                {t('welcomeTitle')}
               </h2>
-              <p className="text-base md:text-lg max-w-md md:hidden">
-                Ask a question to consult the LLM Council
+              <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
+                {t('welcomeSubtitle')}
               </p>
             </div>
-          ) : (
-            conversation.messages.map((msg, index) => (
+
+            {/* Centered input form */}
+            <form onSubmit={handleSubmit} className="w-full">
+              <div className="flex items-end gap-3 md:gap-4">
+                <Textarea
+                  ref={textareaRef}
+                  className="min-h-[80px] max-h-[200px] resize-y text-sm md:text-base shadow-md border-2 focus:border-primary"
+                  placeholder={t('placeholder')}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={isLoading}
+                  rows={3}
+                />
+                <Button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-md hover:shadow-lg transition-all"
+                >
+                  {t('send')}
+                </Button>
+              </div>
+            </form>
+
+            {/* Council models display */}
+            <div className="pt-4 md:pt-6">
+              <CouncilAvatars
+                councilModels={COUNCIL_MODELS}
+                chairmanModel={CHAIRMAN_MODEL}
+                activeModel={null}
+                modelStatuses={{}}
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        // Messages view: scrollable content with fixed input at bottom
+        <>
+          <ScrollArea ref={scrollAreaRef} className="flex-1">
+            <div className="p-3 pb-36 md:p-6 md:pb-44">
+              {conversation.messages.map((msg, index) => (
               <div key={index} className="mb-6 md:mb-8">
                 {msg.role === "user" ? (
                   <div className="mb-4">
@@ -286,23 +327,21 @@ export default function ChatInterface({
                   </div>
                 )}
               </div>
-            ))
-          )}
+            ))}
 
-          {isLoading && (
-            <div className="flex items-center gap-3 p-4">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
-              <span className="text-sm font-medium text-muted-foreground">
-                {t('consultingCouncil')}
-              </span>
-            </div>
-          )}
+            {isLoading && (
+              <div className="flex items-center gap-3 p-4">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {t('consultingCouncil')}
+                </span>
+              </div>
+            )}
 
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
 
-      {conversation.messages.length === 0 && (
         <form
           ref={formRef}
           className="flex items-end gap-3 border-t bg-card p-4 md:gap-4 md:p-6 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
@@ -326,6 +365,7 @@ export default function ChatInterface({
             {t('send')}
           </Button>
         </form>
+      </>
       )}
     </div>
   );
