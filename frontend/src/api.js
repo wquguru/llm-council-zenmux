@@ -2,9 +2,52 @@
  * API client for the LLM Council backend.
  */
 
+import { toast } from "sonner";
+import i18n from "./i18n";
+
 // In production (Docker), use relative path to go through Nginx proxy
 // In development, use direct backend URL
 const API_BASE = import.meta.env.PROD ? "" : "http://localhost:8008";
+
+// Constants
+export const MAX_MESSAGE_LENGTH = 1000;
+
+/**
+ * Handle API error responses and show appropriate toast notifications.
+ */
+async function handleErrorResponse(response) {
+  let errorData;
+  try {
+    errorData = await response.json();
+  } catch {
+    errorData = null;
+  }
+
+  const errorCode = errorData?.error?.code;
+  const t = i18n.t.bind(i18n);
+
+  switch (response.status) {
+    case 429:
+      // Rate limit exceeded
+      toast.warning(t("errorRateLimited"));
+      throw new Error("RATE_LIMITED");
+
+    case 400:
+      // Validation error
+      if (errorCode === "CONTENT_TOO_LONG") {
+        toast.error(t("errorContentTooLong", { max: MAX_MESSAGE_LENGTH }));
+      } else if (errorCode === "CONTENT_EMPTY") {
+        toast.error(t("errorContentEmpty"));
+      } else {
+        toast.error(t("errorGeneric"));
+      }
+      throw new Error(errorCode || "VALIDATION_ERROR");
+
+    default:
+      toast.error(t("errorGeneric"));
+      throw new Error("API_ERROR");
+  }
+}
 
 export const api = {
   /**
@@ -63,7 +106,7 @@ export const api = {
       },
     );
     if (!response.ok) {
-      throw new Error("Failed to send message");
+      await handleErrorResponse(response);
     }
     return response.json();
   },
@@ -88,7 +131,7 @@ export const api = {
     );
 
     if (!response.ok) {
-      throw new Error("Failed to send message");
+      await handleErrorResponse(response);
     }
 
     const reader = response.body.getReader();

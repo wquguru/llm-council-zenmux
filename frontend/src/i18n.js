@@ -55,6 +55,13 @@ const resources = {
       // Stats
       avg: "Avg",
       votes: "votes",
+
+      // Errors
+      errorRateLimited: "Too many requests, please try again later",
+      errorContentTooLong: "Message cannot exceed {max} characters",
+      errorContentEmpty: "Please enter a message",
+      errorGeneric: "An error occurred, please try again",
+      charCount: "{count}/{max}",
     },
   },
   zh: {
@@ -109,6 +116,13 @@ const resources = {
       // Stats
       avg: "平均",
       votes: "票",
+
+      // Errors
+      errorRateLimited: "请求过于频繁，请稍后再试",
+      errorContentTooLong: "消息内容不能超过 {max} 个字符",
+      errorContentEmpty: "请输入消息内容",
+      errorGeneric: "发生错误，请重试",
+      charCount: "{count}/{max}",
     },
   },
 };

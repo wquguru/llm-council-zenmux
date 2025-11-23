@@ -1,13 +1,18 @@
 """FastAPI backend for LLM Council."""
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, field_validator
 from typing import List, Dict, Any
 import uuid
 import json
 import asyncio
+
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from . import storage
 from .council import (
@@ -19,7 +24,94 @@ from .council import (
     calculate_aggregate_rankings,
 )
 
+# Constants
+MAX_MESSAGE_LENGTH = 1000
+RATE_LIMIT_MESSAGE = "5/minute"
+RATE_LIMIT_STREAM = "5/minute"
+
+
+def get_real_ip(request: Request) -> str:
+    """Get real client IP, considering proxy headers."""
+    # Check X-Forwarded-For first (set by Nginx)
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        # Take the first IP in the chain (original client)
+        return forwarded_for.split(",")[0].strip()
+
+    # Check X-Real-IP (set by Nginx)
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip
+
+    # Fall back to direct client IP
+    return get_remote_address(request)
+
+
+# Initialize rate limiter with real IP detection
+limiter = Limiter(key_func=get_real_ip)
+
 app = FastAPI(title="LLM Council API")
+app.state.limiter = limiter
+
+
+# Custom error handlers
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    """Handle rate limit exceeded errors."""
+    return JSONResponse(
+        status_code=429,
+        content={
+            "error": {
+                "code": "RATE_LIMIT_EXCEEDED",
+                "message": "请求过于频繁，请稍后再试",
+                "message_en": "Too many requests, please try again later",
+                "details": {
+                    "retry_after": 60
+                }
+            }
+        },
+        headers={"Retry-After": "60"}
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError):
+    """Handle validation errors with user-friendly messages."""
+    errors = exc.errors()
+
+    # Check for content length error
+    for error in errors:
+        if "content" in str(error.get("loc", [])):
+            msg = error.get("msg", "")
+            if "1000" in msg or "too long" in msg.lower() or "超过" in msg:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "error": {
+                            "code": "CONTENT_TOO_LONG",
+                            "message": f"消息内容不能超过 {MAX_MESSAGE_LENGTH} 个字符",
+                            "message_en": f"Message content cannot exceed {MAX_MESSAGE_LENGTH} characters",
+                            "details": {
+                                "max_length": MAX_MESSAGE_LENGTH
+                            }
+                        }
+                    }
+                )
+
+    # Default validation error
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "请求参数无效",
+                "message_en": "Invalid request parameters",
+                "details": {
+                    "errors": [str(e) for e in errors]
+                }
+            }
+        }
+    )
 
 # Enable CORS for local development and production (Docker with Nginx)
 app.add_middleware(
@@ -46,6 +138,15 @@ class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
 
     content: str
+
+    @field_validator('content')
+    @classmethod
+    def validate_content(cls, v: str) -> str:
+        if not v or len(v.strip()) == 0:
+            raise ValueError('消息内容不能为空')
+        if len(v) > MAX_MESSAGE_LENGTH:
+            raise ValueError(f'消息内容不能超过 {MAX_MESSAGE_LENGTH} 个字符 (当前: {len(v)})')
+        return v.strip()
 
 
 class ConversationMetadata(BaseModel):
@@ -102,7 +203,8 @@ async def get_conversation(conversation_id: str):
 
 
 @app.post("/api/conversations/{conversation_id}/message")
-async def send_message(conversation_id: str, request: SendMessageRequest):
+@limiter.limit(RATE_LIMIT_MESSAGE)
+async def send_message(request: Request, conversation_id: str, body: SendMessageRequest):
     """
     Send a message and run the 3-stage council process.
     Returns the complete response with all stages.
@@ -116,16 +218,16 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
     is_first_message = len(conversation["messages"]) == 0
 
     # Add user message
-    storage.add_user_message(conversation_id, request.content)
+    storage.add_user_message(conversation_id, body.content)
 
     # If this is the first message, generate a title
     if is_first_message:
-        title = await generate_conversation_title(request.content)
+        title = await generate_conversation_title(body.content)
         storage.update_conversation_title(conversation_id, title)
 
     # Run the 3-stage council process
     stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
-        request.content
+        body.content
     )
 
     # Add assistant message with all stages
@@ -143,7 +245,8 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
 
 @app.post("/api/conversations/{conversation_id}/message/stream")
-async def send_message_stream(conversation_id: str, request: SendMessageRequest):
+@limiter.limit(RATE_LIMIT_STREAM)
+async def send_message_stream(request: Request, conversation_id: str, body: SendMessageRequest):
     """
     Send a message and stream the 3-stage council process.
     Returns Server-Sent Events as each stage completes.
@@ -159,24 +262,24 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
     async def event_generator():
         try:
             # Add user message
-            storage.add_user_message(conversation_id, request.content)
+            storage.add_user_message(conversation_id, body.content)
 
             # Start title generation in parallel (don't await yet)
             title_task = None
             if is_first_message:
                 title_task = asyncio.create_task(
-                    generate_conversation_title(request.content)
+                    generate_conversation_title(body.content)
                 )
 
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content)
+            stage1_results = await stage1_collect_responses(body.content)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
             yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
             stage2_results, label_to_model = await stage2_collect_rankings(
-                request.content, stage1_results
+                body.content, stage1_results
             )
             aggregate_rankings = calculate_aggregate_rankings(
                 stage2_results, label_to_model
@@ -186,7 +289,7 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Stage 3: Synthesize final answer
             yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
             stage3_result = await stage3_synthesize_final(
-                request.content, stage1_results, stage2_results
+                body.content, stage1_results, stage2_results
             )
             yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 

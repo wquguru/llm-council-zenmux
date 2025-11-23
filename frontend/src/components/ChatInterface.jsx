@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { MAX_MESSAGE_LENGTH } from "@/api";
 
 // Model configuration (should match backend config.py)
 const COUNCIL_MODELS = [
@@ -38,6 +39,19 @@ export default function ChatInterface({
   const textareaRef = useRef(null);
   const formRef = useRef(null);
 
+  // Character count validation
+  const charCount = input.length;
+  const isOverLimit = charCount > MAX_MESSAGE_LENGTH;
+
+  // Get character counter color based on usage
+  const getCounterColor = () => {
+    const ratio = charCount / MAX_MESSAGE_LENGTH;
+    if (ratio > 1) return "text-red-500 font-bold";
+    if (ratio > 0.95) return "text-red-500";
+    if (ratio > 0.8) return "text-orange-500";
+    return "text-muted-foreground";
+  };
+
   // Handle mobile keyboard appearing - scroll input into view
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -61,7 +75,7 @@ export default function ChatInterface({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (input.trim() && !isLoading) {
+    if (input.trim() && !isLoading && !isOverLimit) {
       onSendMessage(input);
       setInput("");
       // Blur textarea on mobile to hide keyboard after sending
@@ -195,24 +209,38 @@ export default function ChatInterface({
 
             {/* Centered input form */}
             <form onSubmit={handleSubmit} className="w-full">
-              <div className="flex items-end gap-3 md:gap-4">
-                <Textarea
-                  ref={textareaRef}
-                  className="min-h-[80px] max-h-[200px] resize-y text-sm md:text-base shadow-md border-2 focus:border-primary"
-                  placeholder={t('placeholder')}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={isLoading}
-                  rows={3}
-                />
-                <Button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-md hover:shadow-lg transition-all"
-                >
-                  {t('send')}
-                </Button>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-end gap-3 md:gap-4">
+                  <div className="relative flex-1">
+                    <Textarea
+                      ref={textareaRef}
+                      className={cn(
+                        "min-h-[80px] max-h-[200px] resize-y text-sm md:text-base shadow-md border-2 focus:border-primary pr-16",
+                        isOverLimit && "border-red-500 focus:border-red-500"
+                      )}
+                      placeholder={t('placeholder')}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      disabled={isLoading}
+                      rows={3}
+                    />
+                    {/* Character counter */}
+                    <div className={cn(
+                      "absolute bottom-2 right-2 text-xs",
+                      getCounterColor()
+                    )}>
+                      {charCount}/{MAX_MESSAGE_LENGTH}
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={!input.trim() || isLoading || isOverLimit}
+                    className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-md hover:shadow-lg transition-all"
+                  >
+                    {t('send')}
+                  </Button>
+                </div>
               </div>
             </form>
 
@@ -347,19 +375,31 @@ export default function ChatInterface({
           className="flex items-end gap-3 border-t bg-card p-4 md:gap-4 md:p-6 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
           onSubmit={handleSubmit}
         >
-          <Textarea
-            ref={textareaRef}
-            className="min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm"
-            placeholder={t('placeholder')}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isLoading}
-            rows={3}
-          />
+          <div className="relative flex-1">
+            <Textarea
+              ref={textareaRef}
+              className={cn(
+                "min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm pr-16",
+                isOverLimit && "border-red-500 focus:border-red-500"
+              )}
+              placeholder={t('placeholder')}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
+              rows={3}
+            />
+            {/* Character counter */}
+            <div className={cn(
+              "absolute bottom-2 right-2 text-xs",
+              getCounterColor()
+            )}>
+              {charCount}/{MAX_MESSAGE_LENGTH}
+            </div>
+          </div>
           <Button
             type="submit"
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || isOverLimit}
             className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-sm hover:shadow-md transition-all"
           >
             {t('send')}

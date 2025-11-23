@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Toaster } from "sonner";
 import Sidebar from "./components/Sidebar";
 import ChatInterface from "./components/ChatInterface";
 import PartnerFooter from "./components/PartnerFooter";
@@ -309,10 +310,13 @@ function AppContent() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<AppContent />} />
-      <Route path="/c/:conversationId" element={<AppContent />} />
-    </Routes>
+    <>
+      <Toaster position="top-center" richColors closeButton />
+      <Routes>
+        <Route path="/" element={<AppContent />} />
+        <Route path="/c/:conversationId" element={<AppContent />} />
+      </Routes>
+    </>
   );
 }
 
