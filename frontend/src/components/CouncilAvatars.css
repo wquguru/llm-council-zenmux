@@ -17,6 +17,34 @@
   gap: 1rem;
 }
 
+.chairman-section .model-avatar {
+  position: relative;
+}
+
+.chairman-section .model-avatar::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  opacity: 0.15;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.chairman-section .model-avatar:hover::before {
+  opacity: 0.25;
+}
+
+.chairman-section .avatar-wrapper {
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.chairman-section .model-avatar.active .avatar-wrapper {
+  box-shadow: 0 0 0 3px var(--model-color, #4a90e2), 0 6px 16px rgba(251, 191, 36, 0.4);
+  transform: scale(1.08);
+}
+
 .section-label {
   font-size: 0.75rem;
   font-weight: 600;

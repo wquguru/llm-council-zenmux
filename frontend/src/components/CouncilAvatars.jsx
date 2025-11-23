@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Crown } from 'lucide-react';
 import { Qwen, Grok, DeepSeek, HuggingFace } from '@lobehub/icons';
@@ -88,12 +89,15 @@ export const CouncilAvatars = ({
   chairmanModel,
   activeModel,
   onSelectModel,
-  modelStatuses = {}
+  modelStatuses = {},
+  onChairmanClick
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="council-avatars">
       <div className="council-section">
-        <div className="section-label">Council Members</div>
+        <div className="section-label">{t('councilMembers')}</div>
         <div className="avatars-row">
           {councilModels.map((modelId) => (
             <ModelAvatar
@@ -109,11 +113,11 @@ export const CouncilAvatars = ({
 
       {chairmanModel && (
         <div className="chairman-section">
-          <div className="section-label">Chairman</div>
+          <div className="section-label">{t('chairman')}</div>
           <ModelAvatar
             modelId={chairmanModel}
             isActive={activeModel === chairmanModel}
-            onClick={() => onSelectModel?.(chairmanModel)}
+            onClick={() => onChairmanClick?.(chairmanModel)}
             status={modelStatuses[chairmanModel]}
           />
         </div>

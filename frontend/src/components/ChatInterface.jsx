@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
 import Stage1 from "./Stage1";
 import Stage2 from "./Stage2";
@@ -26,6 +27,7 @@ export default function ChatInterface({
   onNewConversation,
   conversationId,
 }) {
+  const { t } = useTranslation();
   const [input, setInput] = useState("");
   const [activeModel, setActiveModel] = useState(null);
   const messagesEndRef = useRef(null);
@@ -82,6 +84,30 @@ export default function ChatInterface({
     // Tab 切换已经足够，用户可以自行滚动查看内容
   };
 
+  const handleChairmanClick = (modelId) => {
+    setActiveModel(modelId);
+    // Scroll to Stage 3 section when chairman is clicked
+    if (stage3Ref.current) {
+      stage3Ref.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
+  const scrollToStage2 = () => {
+    if (stage2Ref.current) {
+      // Use 'start' to ensure the top of the card is visible
+      // Add a small delay to ensure DOM is ready
+      setTimeout(() => {
+        stage2Ref.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 50);
+    }
+  };
+
   const getModelStatuses = (msg) => {
     const statuses = {};
 
@@ -109,10 +135,10 @@ export default function ChatInterface({
       <div className="flex h-full flex-col">
         <div className="flex flex-1 flex-col items-center justify-center text-center text-muted-foreground p-6">
           <h2 className="mb-3 text-2xl font-bold text-foreground md:text-3xl">
-            Welcome to LLM Council
+            {t('welcomeTitle')}
           </h2>
           <p className="text-base md:text-lg max-w-md mb-6">
-            Create a new conversation to get started
+            {t('welcomeSubtitle')}
           </p>
           <Button
             onClick={onNewConversation}
@@ -133,7 +159,7 @@ export default function ChatInterface({
             >
               <path d="M12 5v14M5 12h14" />
             </svg>
-            New Conversation
+            {t('newConversation')}
           </Button>
         </div>
       </div>
@@ -159,7 +185,7 @@ export default function ChatInterface({
                 {msg.role === "user" ? (
                   <div className="mb-4">
                     <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
-                      You
+                      {t('you')}
                     </div>
                     <Card className="max-w-full border-primary/30 bg-primary/5 p-4 md:max-w-[80%] shadow-sm hover:shadow-md transition-shadow">
                       <div className="markdown-content text-sm md:text-base">
@@ -171,7 +197,7 @@ export default function ChatInterface({
                   <div className="mb-4">
                     <div className="mb-3 flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mono">
-                        LLM Council
+                        {t('llmCouncil')}
                       </span>
                       {msg.stage3 && (
                         <ShareButton
@@ -188,6 +214,7 @@ export default function ChatInterface({
                         chairmanModel={CHAIRMAN_MODEL}
                         activeModel={activeModel}
                         onSelectModel={handleSelectModel}
+                        onChairmanClick={handleChairmanClick}
                         modelStatuses={getModelStatuses(msg)}
                       />
                     )}
@@ -198,7 +225,7 @@ export default function ChatInterface({
                         <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
                           <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
                           <span className="text-sm font-medium text-muted-foreground">
-                            Running Stage 1: Collecting individual responses...
+                            {t('loadingStage1')}
                           </span>
                         </Card>
                       )}
@@ -217,7 +244,7 @@ export default function ChatInterface({
                         <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
                           <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
                           <span className="text-sm font-medium text-muted-foreground">
-                            Running Stage 2: Peer rankings...
+                            {t('loadingStage2')}
                           </span>
                         </Card>
                       )}
@@ -228,6 +255,7 @@ export default function ChatInterface({
                           aggregateRankings={msg.metadata?.aggregate_rankings}
                           activeModel={activeModel}
                           onSelectModel={handleSelectModel}
+                          scrollToStage2={scrollToStage2}
                         />
                       )}
                     </div>
@@ -238,7 +266,7 @@ export default function ChatInterface({
                         <Card className="mb-4 flex items-center gap-3 border-muted bg-muted/50 p-4 shadow-sm">
                           <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
                           <span className="text-sm font-medium text-muted-foreground">
-                            Running Stage 3: Final synthesis...
+                            {t('loadingStage3')}
                           </span>
                         </Card>
                       )}
@@ -254,7 +282,7 @@ export default function ChatInterface({
             <div className="flex items-center gap-3 p-4">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
               <span className="text-sm font-medium text-muted-foreground">
-                Consulting the council...
+                {t('consultingCouncil')}
               </span>
             </div>
           )}
@@ -272,7 +300,7 @@ export default function ChatInterface({
           <Textarea
             ref={textareaRef}
             className="min-h-[60px] max-h-[200px] resize-y text-sm md:min-h-[80px] md:max-h-[300px] md:text-base shadow-sm"
-            placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
+            placeholder={t('placeholder')}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -284,7 +312,7 @@ export default function ChatInterface({
             disabled={!input.trim() || isLoading}
             className="h-auto px-6 py-3 md:px-8 md:py-4 font-semibold shadow-sm hover:shadow-md transition-all"
           >
-            Send
+            {t('send')}
           </Button>
         </form>
       )}

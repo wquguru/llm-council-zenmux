@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -20,7 +21,9 @@ function deAnonymizeText(text, labelToModel) {
   return result;
 }
 
-export default function Stage2({ rankings, labelToModel, aggregateRankings, activeModel, onSelectModel }) {
+export default function Stage2({ rankings, labelToModel, aggregateRankings, activeModel, onSelectModel, scrollToStage2 }) {
+  const { t } = useTranslation();
+
   if (!rankings || rankings.length === 0) {
     return null;
   }
@@ -35,6 +38,10 @@ export default function Stage2({ rankings, labelToModel, aggregateRankings, acti
     const index = parseInt(value, 10);
     if (rankings[index] && onSelectModel) {
       onSelectModel(rankings[index].model);
+      // Scroll to Stage 2 section when tab is changed
+      if (scrollToStage2) {
+        scrollToStage2();
+      }
     }
   };
 
@@ -42,18 +49,15 @@ export default function Stage2({ rankings, labelToModel, aggregateRankings, acti
     <Card className="mb-4 shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-bold">
-          Stage 2: Peer Rankings
+          {t('stage2Title')}
         </CardTitle>
         <CardDescription className="text-sm">
-          Each model evaluated all responses (anonymized as Response A, B, C,
-          etc.) and provided rankings. Below, model names are shown in{" "}
-          <strong>bold</strong> for readability, but the original evaluation
-          used anonymous labels.
+          {t('stage2Description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground mono">
-          Raw Evaluations
+          {t('rawEvaluations')}
         </h4>
 
         <Tabs value={currentValue} onValueChange={handleTabChange} className="w-full">
@@ -83,7 +87,7 @@ export default function Stage2({ rankings, labelToModel, aggregateRankings, acti
               {rank.parsed_ranking && rank.parsed_ranking.length > 0 && (
                 <div className="mt-3 rounded-lg border bg-muted/50 p-3 shadow-sm">
                   <strong className="text-sm font-semibold">
-                    Extracted Ranking:
+                    {t('extractedRanking')}:
                   </strong>
                   <ol className="ml-4 mt-2 list-decimal text-sm font-medium">
                     {rank.parsed_ranking.map((label, i) => (
@@ -104,11 +108,10 @@ export default function Stage2({ rankings, labelToModel, aggregateRankings, acti
         {aggregateRankings && aggregateRankings.length > 0 && (
           <div className="mt-6 pt-6 border-t">
             <h4 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground mono">
-              Aggregate Rankings (Street Cred)
+              {t('aggregateRankings')}
             </h4>
             <p className="mb-4 text-sm text-muted-foreground">
-              Combined results across all peer evaluations (lower score is
-              better):
+              {t('aggregateDescription')}
             </p>
             <div className="space-y-2">
               {aggregateRankings.map((agg, index) => (
@@ -126,13 +129,13 @@ export default function Stage2({ rankings, labelToModel, aggregateRankings, acti
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mono">
                     <span>
-                      Avg:{" "}
+                      {t('avg')}:{" "}
                       <span className="font-bold text-foreground">
                         {agg.average_rank.toFixed(2)}
                       </span>
                     </span>
                     <span className="text-xs">
-                      ({agg.rankings_count} votes)
+                      ({agg.rankings_count} {t('votes')})
                     </span>
                   </div>
                 </div>
