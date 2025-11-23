@@ -10,7 +10,6 @@ ZENMUX_API_KEY = os.getenv("ZENMUX_API_KEY")
 
 # Council members - list of ZenMux model identifiers
 COUNCIL_MODELS = [
-    "deepseek/deepseek-chat-v3.1",
     "qwen/qwen3-14b",
     "x-ai/grok-4.1-fast",
     "kuaishou/kat-coder-pro-v1",

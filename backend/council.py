@@ -61,7 +61,7 @@ async def stage2_collect_rankings(
         ]
     )
 
-    ranking_prompt = f"""You are evaluating different responses to the following question:
+    ranking_prompt = f"""You are evaluating different responses to the following question. Please respond in the SAME LANGUAGE as the question.
 
 Question: {user_query}
 
@@ -90,7 +90,7 @@ FINAL RANKING:
 2. Response A
 3. Response B
 
-Now provide your evaluation and ranking:"""
+Now provide your evaluation and ranking (remember to use the SAME LANGUAGE as the question):"""
 
     messages = [{"role": "user", "content": ranking_prompt}]
 
@@ -143,6 +143,8 @@ async def stage3_synthesize_final(
 
     chairman_prompt = f"""You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
 
+IMPORTANT: Please respond in the SAME LANGUAGE as the original question.
+
 Original Question: {user_query}
 
 STAGE 1 - Individual Responses:
@@ -156,7 +158,7 @@ Your task as Chairman is to synthesize all of this information into a single, co
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
 
-Provide a clear, well-reasoned final answer that represents the council's collective wisdom:"""
+Provide a clear, well-reasoned final answer that represents the council's collective wisdom (remember to use the SAME LANGUAGE as the question):"""
 
     messages = [{"role": "user", "content": chairman_prompt}]
 

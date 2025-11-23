@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# Environment
+.env
+.env.*
+*.env
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Data and logs
+data/
+*.log
+
+# Frontend
+frontend/node_modules
+frontend/dist
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Misc
+*.md
+!README.md
+header.jpg
