@@ -15,14 +15,13 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
     Returns:
         List of dicts with 'model' and 'response' keys
     """
-    # Add strong language instruction that lets model decide based on question language
-    prompt = f"""**CRITICAL: You MUST respond in the EXACT SAME LANGUAGE as the question below. Do not translate or switch languages.**
-
-{user_query}
-
-**REMINDER: Your response must be in the same language as the question above.**"""
-
-    messages = [{"role": "user", "content": prompt}]
+    messages = [
+        {
+            "role": "system",
+            "content": "You must always respond in the exact same language as the user's question. Never translate or switch languages.",
+        },
+        {"role": "user", "content": user_query},
+    ]
 
     # Query all models in parallel
     responses = await query_models_parallel(COUNCIL_MODELS, messages)
@@ -68,16 +67,7 @@ async def stage2_collect_rankings(
         ]
     )
 
-    ranking_prompt = f"""**CRITICAL INSTRUCTION**
-You must respond in the EXACT SAME LANGUAGE as this question: "{user_query}"
-
-Below you will see responses from different models. These responses may be in various languages.
-IGNORE the languages of the responses. Evaluate their CONTENT only.
-Your evaluation and ranking must be in the SAME LANGUAGE as the original question above.
-
-─────────────────────────────────────
-
-You are evaluating different responses to the following question.
+    ranking_prompt = f"""You are evaluating different responses to the following question.
 
 Question: {user_query}
 
@@ -106,14 +96,15 @@ FINAL RANKING:
 2. Response A
 3. Response B
 
-─────────────────────────────────────
+Now evaluate and rank the responses."""
 
-Now evaluate and rank the responses to this question: "{user_query}"
-
-REMINDER: Write your evaluation in the SAME LANGUAGE as the question shown above.
-Begin your evaluation now:"""
-
-    messages = [{"role": "user", "content": ranking_prompt}]
+    messages = [
+        {
+            "role": "system",
+            "content": f'You must respond in the exact same language as this question: "{user_query}". The responses you are evaluating may be in various languages - ignore their languages and evaluate only their content. Your evaluation and ranking must be in the same language as the original question.',
+        },
+        {"role": "user", "content": ranking_prompt},
+    ]
 
     # Get rankings from all council models in parallel
     responses = await query_models_parallel(COUNCIL_MODELS, messages)
@@ -162,16 +153,7 @@ async def stage3_synthesize_final(
         ]
     )
 
-    chairman_prompt = f"""**CRITICAL INSTRUCTION**
-You must answer in the EXACT SAME LANGUAGE as this question: "{user_query}"
-
-Below you will see responses in various languages. Some may not match the question's language.
-IGNORE the languages used in the responses below. Focus only on their CONTENT.
-Your answer must match the language of the original question above.
-
-─────────────────────────────────────
-
-You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
+    chairman_prompt = f"""You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
 
 Original Question: {user_query}
 
@@ -186,14 +168,15 @@ Your task as Chairman is to synthesize all of this information into a single, co
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
 
-─────────────────────────────────────
+Now synthesize your answer to the question above."""
 
-Now synthesize your answer to this question: "{user_query}"
-
-REMINDER: Write your answer in the SAME LANGUAGE as the question shown above.
-Begin your answer now:"""
-
-    messages = [{"role": "user", "content": chairman_prompt}]
+    messages = [
+        {
+            "role": "system",
+            "content": f'You must answer in the exact same language as this question: "{user_query}". The responses you see may be in various languages - ignore their languages and focus only on their content. Your synthesized answer must be in the same language as the original question.',
+        },
+        {"role": "user", "content": chairman_prompt},
+    ]
 
     # Query the chairman model
     response = await query_model(CHAIRMAN_MODEL, messages)

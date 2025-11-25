@@ -284,7 +284,7 @@ export default function ChatInterface({
                   (msg) => msg.role === "assistant" && msg.stage3,
                 )
                   ? "pb-36 md:pb-44"
-                  : "pb-6 md:pb-8",
+                  : "pb-20 md:pb-24", // Increased to avoid fixed footer
               )}
             >
               {conversation.messages.map((msg, index) => (
