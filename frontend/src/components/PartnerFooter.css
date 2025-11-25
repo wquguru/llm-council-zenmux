@@ -29,7 +29,7 @@
 
 .partner-link {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   transition: opacity 0.2s ease, transform 0.2s ease;
   text-decoration: none;
 }

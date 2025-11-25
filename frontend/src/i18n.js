@@ -62,6 +62,10 @@ const resources = {
       errorContentEmpty: "Please enter a message",
       errorGeneric: "An error occurred, please try again",
       charCount: "{count}/{max}",
+
+      // Promo badges
+      zenmuxPromo: "25% off",
+      voyraPromo: "Free",
     },
   },
   zh: {
@@ -123,6 +127,10 @@ const resources = {
       errorContentEmpty: "请输入消息内容",
       errorGeneric: "发生错误，请重试",
       charCount: "{count}/{max}",
+
+      // Promo badges
+      zenmuxPromo: "75折",
+      voyraPromo: "免费",
     },
   },
 };

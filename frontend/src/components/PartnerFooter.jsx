@@ -1,7 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import PromoBadge from './PromoBadge';
 import './PartnerFooter.css';
 
 export default function PartnerFooter() {
+  const { t } = useTranslation();
+
   return (
     <div className="partner-footer">
       <div className="partner-footer-content">
@@ -19,6 +23,7 @@ export default function PartnerFooter() {
             alt="ZenMux"
             className="partner-logo zenmux-logo"
           />
+          <PromoBadge text="LLM" type="llm" mode="product" />
         </a>
 
         <span className="separator">•</span>
@@ -31,6 +36,7 @@ export default function PartnerFooter() {
           title="Voyra Cloud - VPS Hosting"
         >
           <span className="voyra-text">VoyraCloud</span>
+          <PromoBadge text="VPS" type="vps" mode="product" />
         </a>
       </div>
     </div>

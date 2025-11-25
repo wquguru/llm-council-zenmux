@@ -1,0 +1,80 @@
+/* Product Type Badges (LLM, VPS) - Tight to logo */
+.product-badge {
+  display: inline-block;
+  font-size: 0.5rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-left: 2px;
+  vertical-align: super;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.product-badge-llm {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 1px 2px rgba(102, 126, 234, 0.3);
+}
+
+.product-badge-vps {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  box-shadow: 0 1px 2px rgba(245, 87, 108, 0.3);
+}
+
+/* Promotional Badges (if still needed) */
+.promo-badge {
+  display: inline-block;
+  font-size: 0.5rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  margin-left: 4px;
+}
+
+.promo-badge:hover {
+  transform: scale(1.05);
+}
+
+.promo-badge-discount {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+}
+
+.promo-badge-free {
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  box-shadow: 0 1px 3px rgba(34, 197, 94, 0.3);
+}
+
+.promo-badge-default {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .product-badge {
+    font-size: 0.45rem;
+    padding: 0.5px 3px;
+    border-radius: 2px;
+    margin-left: 1.5px;
+  }
+
+  .promo-badge {
+    font-size: 0.45rem;
+    padding: 1.5px 4px;
+    border-radius: 3px;
+    margin-left: 3px;
+  }
+}
