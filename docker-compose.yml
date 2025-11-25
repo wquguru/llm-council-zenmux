@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -41,7 +39,3 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-networks:
-  default:
-    name: llm-council-network

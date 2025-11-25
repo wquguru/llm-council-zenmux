@@ -230,9 +230,9 @@ async def send_message(request: Request, conversation_id: str, body: SendMessage
         body.content
     )
 
-    # Add assistant message with all stages
+    # Add assistant message with all stages and metadata
     storage.add_assistant_message(
-        conversation_id, stage1_results, stage2_results, stage3_result
+        conversation_id, stage1_results, stage2_results, stage3_result, metadata
     )
 
     # Return the complete response with metadata
@@ -299,9 +299,13 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 storage.update_conversation_title(conversation_id, title)
                 yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
 
-            # Save complete assistant message
+            # Save complete assistant message with metadata
+            metadata = {
+                "label_to_model": label_to_model,
+                "aggregate_rankings": aggregate_rankings,
+            }
             storage.add_assistant_message(
-                conversation_id, stage1_results, stage2_results, stage3_result
+                conversation_id, stage1_results, stage2_results, stage3_result, metadata
             )
 
             # Send completion event
